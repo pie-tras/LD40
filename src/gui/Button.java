@@ -31,15 +31,6 @@ public class Button {
 		sheet.bindTile(shader, 1, 1);
 		Assets.getModel().render();
 		
-		renderSides(position, scale, camera, sheet, shader);
-		renderCorners(position, scale, camera, sheet, shader);
 	}
 	
-	private void renderSides(Vector2f position, Vector2f scale,  Camera camera, SpriteSheet sheet, Shader shader){
-		
-	}
-	
-	private void renderCorners(Vector2f position, Vector2f scale,  Camera camera, SpriteSheet sheet, Shader shader){
-		
-	}
 }

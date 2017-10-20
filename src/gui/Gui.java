@@ -17,7 +17,7 @@ public class Gui {
 		shader = new Shader("gui");
 		camera = new Camera(window.getWidth(), window.getHeight());
 		sheet = new SpriteSheet("gui.png", 10);
-		temporary = new Button(new Vector2f(0, 0), new Vector2f(96, 32));
+		//temporary = new Button(new Vector2f(0, 0), new Vector2f(96, 32));
 	}
 	
 	public void resizeCamera(Window window){
@@ -25,7 +25,7 @@ public class Gui {
 	}
 	
 	public void render() {
-		shader.bind();
-		temporary.render(camera, sheet, shader);
+		//shader.bind();
+		//temporary.render(camera, sheet, shader);
 	}
 }
