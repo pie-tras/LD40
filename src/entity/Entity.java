@@ -1,5 +1,9 @@
 package entity;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import org.joml.*;
 
 import assets.*;
@@ -126,5 +130,27 @@ public abstract class Entity {
 			entity.bounding_box.correctPosition(bounding_box, collision);
 			entity.transform.pos.set(entity.bounding_box.getCenter().x, entity.bounding_box.getCenter().y, 0);
 		}
+	}
+	
+	protected Vector2f wander(float delta){
+		Vector2f movement = new Vector2f();
+
+		Vector2f target0 = new Vector2f(0,1);
+		Vector2f target1 = new Vector2f(1,1);
+		Vector2f target2 = new Vector2f(1,0);
+		Vector2f target3 = new Vector2f(1,-1);
+		Vector2f target4 = new Vector2f(0,-1);
+		Vector2f target5 = new Vector2f(-1,-1);
+		Vector2f target6 = new Vector2f(-1,0);
+		Vector2f target7 = new Vector2f(-1,1);
+
+		Random rand = new Random();
+		
+		int Compass = rand.nextInt(8);
+		int Dis = rand.nextInt(10);
+		
+		//Just re do it later
+		
+		return movement;
 	}
 }

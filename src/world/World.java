@@ -73,6 +73,10 @@ public class World {
 							entities.add(player);
 							camera.getPosition().set(transform.pos.mul(-scale, new Vector3f()));
 							break;
+						case 2:
+							Sheep sheep = new Sheep(transform, this);
+							entities.add(sheep);
+							break;
 						default:
 							
 							break;
