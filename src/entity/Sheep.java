@@ -1,7 +1,5 @@
 package entity;
 
-import java.util.Random;
-
 import org.joml.Vector2f;
 
 import io.Window;
@@ -16,8 +14,8 @@ public class Sheep extends Entity{
 
 	public Sheep(Transform transform, World world) {
 		super(ANIM_SIZE, transform, world);
-		setAnimation(ANIM_IDLEL, new Animation(1, 2, "sheep/idleL"));
-		setAnimation(ANIM_WALKL, new Animation(3, 10, "sheep/walkL"));
+		setAnimation(ANIM_IDLEL, new Animation(2, 2, "sheep/idleL"));
+		setAnimation(ANIM_WALKL, new Animation(4, 10, "sheep/walkL"));
 	}
 
 	@Override

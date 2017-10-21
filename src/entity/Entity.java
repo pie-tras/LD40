@@ -1,18 +1,28 @@
 package entity;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
-import org.joml.*;
+import org.joml.Matrix4f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 
-import assets.*;
-import collision.*;
-import io.*;
-import render.*;
-import world.*;
+import assets.Assets;
+import collision.AABB;
+import collision.Collision;
+import io.Window;
+import render.Animation;
+import render.Camera;
+import render.Shader;
+import world.World;
 
 public abstract class Entity {
+	
+	private boolean canChangeDir = true;
+	private int Compass;
+	private int Dis;
+	private Random rand = new Random();
+	
+	
 	protected AABB bounding_box;
 	
 	protected Animation[] animations;
@@ -135,22 +145,30 @@ public abstract class Entity {
 	protected Vector2f wander(float delta){
 		Vector2f movement = new Vector2f();
 
-		Vector2f target0 = new Vector2f(0,1);
-		Vector2f target1 = new Vector2f(1,1);
-		Vector2f target2 = new Vector2f(1,0);
-		Vector2f target3 = new Vector2f(1,-1);
-		Vector2f target4 = new Vector2f(0,-1);
-		Vector2f target5 = new Vector2f(-1,-1);
-		Vector2f target6 = new Vector2f(-1,0);
-		Vector2f target7 = new Vector2f(-1,1);
-
-		Random rand = new Random();
+		if(canChangeDir == true){
+			Compass = rand.nextInt(8);
+			Dis = rand.nextInt(10);
+			canChangeDir = false;
+		}
 		
-		int Compass = rand.nextInt(8);
-		int Dis = rand.nextInt(10);
-		
-		//Just re do it later
-		
+		if(Compass == 0){
+			movement.add(0, 10*delta);
+		}else if(Compass == 1){
+			movement.add(10*delta, 10*delta);
+		}else if(Compass == 2){
+			movement.add(10*delta, 0);
+		}else if(Compass == 3){
+			movement.add(10*delta, -10*delta);
+		}else if(Compass == 4){
+			movement.add(0, -10*delta);
+		}else if(Compass == 5){
+			movement.add(-10*delta, -10*delta);
+		}else if(Compass == 6){
+			movement.add(-10*delta, 0);
+		}else{
+			movement.add(-10*delta, 10*delta);
+		}
+	
 		return movement;
 	}
 }
