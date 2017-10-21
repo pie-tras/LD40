@@ -9,6 +9,7 @@ import org.joml.Vector3f;
 import assets.Assets;
 import collision.AABB;
 import collision.Collision;
+import io.Timer;
 import io.Window;
 import render.Animation;
 import render.Camera;
@@ -21,7 +22,7 @@ public abstract class Entity {
 	private int Compass;
 	private int Dis;
 	private Random rand = new Random();
-	
+	private double waitTimeStart = 0;
 	
 	protected AABB bounding_box;
 	
@@ -142,33 +143,41 @@ public abstract class Entity {
 		}
 	}
 	
-	protected Vector2f wander(float delta){
+	protected Vector2f wander(float delta, Transform transform, int speed){
 		Vector2f movement = new Vector2f();
 
 		if(canChangeDir == true){
-			Compass = rand.nextInt(8);
-			Dis = rand.nextInt(10);
+			waitTimeStart = Timer.getTime();
+			Compass = rand.nextInt(10);
+			Dis = rand.nextInt(10)+1;
 			canChangeDir = false;
 		}
 		
-		if(Compass == 0){
-			movement.add(0, 10*delta);
-		}else if(Compass == 1){
-			movement.add(10*delta, 10*delta);
-		}else if(Compass == 2){
-			movement.add(10*delta, 0);
-		}else if(Compass == 3){
-			movement.add(10*delta, -10*delta);
-		}else if(Compass == 4){
-			movement.add(0, -10*delta);
-		}else if(Compass == 5){
-			movement.add(-10*delta, -10*delta);
-		}else if(Compass == 6){
-			movement.add(-10*delta, 0);
-		}else{
-			movement.add(-10*delta, 10*delta);
+		if((int)(Timer.getTime()-waitTimeStart)==Dis){
+			canChangeDir = true;
 		}
+		
+		if(Compass == 0){
+			movement.add(0, speed*delta);
+		}else if(Compass == 1){
+			movement.add(speed*delta, speed*delta);
+		}else if(Compass == 2){
+			movement.add(speed*delta, 0);
+		}else if(Compass == 3){
+			movement.add(speed*delta, -speed*delta);
+		}else if(Compass == 4){
+			movement.add(0, -speed*delta);
+		}else if(Compass == 5){
+			movement.add(-speed*delta, -speed*delta);
+		}else if(Compass == 6){
+			movement.add(-speed*delta, 0);
+		}else if(Compass == 7){
+			movement.add(-speed*delta, speed*delta);
+		}else{
 	
+		}
+		
+		
 		return movement;
 	}
 }

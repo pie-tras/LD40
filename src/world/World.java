@@ -26,7 +26,7 @@ public class World {
 	
 	public World(String world, Camera camera){
 		try {
-			BufferedImage tile_sheet = ImageIO.read(new File("./levels/" + world + "/tiles.png"));
+			BufferedImage tile_sheet = ImageIO.read(new File("./levels/" + world + "/tiles2.png"));
 			BufferedImage entity_sheet = ImageIO.read(new File("./levels/" + world + "/entities.png"));
 		
 			width  = tile_sheet.getWidth();
