@@ -22,9 +22,12 @@ public class Sheep extends Entity{
 	public static final int ANIM_WALKD = 7;
 	
 	public static final int ANIM_SIZE = 8;
+	
+	public final static int WIDTH=16;
+	public final static int HEIGHT=16;
 
 	public Sheep(Transform transform, World world) {
-		super(ANIM_SIZE, transform, world);
+		super(ANIM_SIZE, transform, world, WIDTH, HEIGHT);
 		setAnimation(ANIM_IDLER, new Animation(2, 2, "sheep/idleR"));
 		setAnimation(ANIM_IDLEL, new Animation(2, 2, "sheep/idleL"));
 		setAnimation(ANIM_IDLEU, new Animation(2, 2, "sheep/idleU"));

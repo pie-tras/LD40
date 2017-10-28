@@ -32,7 +32,7 @@ public class World {
 			width  = tile_sheet.getWidth();
 			height  = tile_sheet.getHeight();
 			
-			scale=32;
+			scale=16;
 			
 			this.world = new Matrix4f().setTranslation(new Vector3f(0));
 			this.world.scale(scale);
@@ -95,7 +95,7 @@ public class World {
 	public World() {
 		width = 64;
 		height = 64;
-		scale = 32;
+		scale = 16;
 		
 		tiles = new byte[width * height];
 		bounding_boxes = new AABB[width * height];

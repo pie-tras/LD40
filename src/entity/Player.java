@@ -1,21 +1,25 @@
 package entity;
 
-import org.joml.*;
-import org.lwjgl.glfw.*;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.lwjgl.glfw.GLFW;
 
-import io.*;
-import render.*;
-import world.*;
+import io.Window;
+import render.Animation;
+import render.Camera;
+import world.World;
 
 public class Player extends Entity{
 	public static final int ANIM_IDLE = 0;
 	public static final int ANIM_WALK = 1;
 	public static final int ANIM_SIZE = 2;
+	public final static int WIDTH=16;
+	public final static int HEIGHT=16;
 	
 	public Player(Transform transform, World world) {
-		super(ANIM_SIZE, transform, world);
-		setAnimation(ANIM_IDLE, new Animation(1, 2, "player/idle"));
-		setAnimation(ANIM_WALK, new Animation(3, 10, "player/walk"));	
+		super(ANIM_SIZE, transform, world, WIDTH, HEIGHT);
+		setAnimation(ANIM_IDLE, new Animation(1, 2, "player/black"));
+		setAnimation(ANIM_WALK, new Animation(3, 10, "player/black"));
 	}
 	
 	@Override
@@ -42,7 +46,6 @@ public class Player extends Entity{
 			useAnimation(ANIM_IDLE);
 		
 		camera.getPosition().lerp(transform.pos.mul(-world.getScale(), new Vector3f()), 0.05f);
-		
 	}
 	
 }

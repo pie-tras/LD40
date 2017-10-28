@@ -33,17 +33,24 @@ public abstract class Entity {
 	
 	protected World world;
 	
-	public Entity(int max_animations, Transform transform, World world) {
+	protected int width;
+	protected int height;
+	
+	public Entity(int max_animations, Transform transform, World world, int width, int height) {
 
 		this.animations = new Animation[max_animations];
 		
 		this.world = world;
 		
+		this.width = width;
+		this.height = height;
+		
 		this.transform = transform;
 		this.use_animation = 0;
 		
-		bounding_box = new AABB(new Vector2f(transform.pos.x, transform.pos.y), new Vector2f(transform.scale.x, transform.scale.y));
+		bounding_box = new AABB(new Vector2f(transform.pos.x, transform.pos.y), new Vector2f(width/16, height/16));
 	}
+	
 	
 	protected void setAnimation(int index, Animation animation) {
 		animations[index] = animation;
@@ -54,10 +61,29 @@ public abstract class Entity {
 	}
 	
 	public void move(Vector2f direction) {
+			
 		transform.pos.add(new Vector3f(direction, 0));
+
+		if(transform.pos.x+direction.x<0){
+			transform.pos.set(0, transform.pos.y, 0);
+		}
+		if(transform.pos.x+direction.x>126){
+			transform.pos.set(126, transform.pos.y, 0);
+		} 
+		if(transform.pos.y+direction.y>0){
+			transform.pos.set(transform.pos.x, 0, 0);
+		} 
+		if(transform.pos.y+direction.y<-126){
+			transform.pos.set(transform.pos.x, -126, 0);
+		}
 		
+			
+		
+
 		bounding_box.getCenter().set(transform.pos.x, transform.pos.y);	
+
 	}
+
 	
 	public abstract void update(float delta, Window window, Camera camera);
 		
