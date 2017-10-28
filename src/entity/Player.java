@@ -18,8 +18,8 @@ public class Player extends Entity{
 	
 	public Player(Transform transform, World world) {
 		super(ANIM_SIZE, transform, world, WIDTH, HEIGHT);
-		setAnimation(ANIM_IDLE, new Animation(1, 2, "player/black"));
-		setAnimation(ANIM_WALK, new Animation(3, 10, "player/black"));
+		setAnimation(ANIM_IDLE, new Animation(1, 2, "player/idle"));
+		setAnimation(ANIM_WALK, new Animation(3, 10, "player/walk"));
 	}
 	
 	@Override

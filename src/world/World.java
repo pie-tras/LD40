@@ -14,33 +14,35 @@ import io.*;
 import render.*;
 
 public class World {
-	private int viewX, viewY;
-	private byte[] tiles;
 	private AABB[] bounding_boxes;
 	private List<Entity> entities;
 	private int width;
 	private int height;
 	private int scale;
 	
+	private Texture map;
+	
 	private Matrix4f world;
 	
 	public World(String world, Camera camera){
+		
+		map = new Texture("Map.png");
+		
 		try {
-			BufferedImage tile_sheet = ImageIO.read(new File("./levels/" + world + "/tiles2.png"));
+			BufferedImage bound_sheet = ImageIO.read(new File("./levels/" + world + "/tiles2.png"));
 			BufferedImage entity_sheet = ImageIO.read(new File("./levels/" + world + "/entities.png"));
 		
-			width  = tile_sheet.getWidth();
-			height  = tile_sheet.getHeight();
+			width  = bound_sheet.getWidth();
+			height  = bound_sheet.getHeight();
 			
 			scale=16;
 			
 			this.world = new Matrix4f().setTranslation(new Vector3f(0));
 			this.world.scale(scale);
 			
-			int[] colorTileSheet = tile_sheet.getRGB(0, 0, width, height, null, 0, width);
+			int[] colorTileSheet = bound_sheet.getRGB(0, 0, width, height, null, 0, width);
 			int[] colorEntitySheet = entity_sheet.getRGB(0, 0, width, height, null, 0, width);
 			
-			tiles = new byte[width * height];
 			bounding_boxes = new AABB[width * height];
 			entities = new ArrayList<Entity>();
 			
@@ -52,15 +54,8 @@ public class World {
 					int entity_index = (colorEntitySheet[x + y * width] >> 16)& 0xFF;
 					int entity_alpha = (colorEntitySheet[x + y * width] >> 24)& 0xFF;
 					
-					Tile t;
-					try{
-						t = Tile.tiles[red];
-					}catch(ArrayIndexOutOfBoundsException e) {
-						t = null;
-					}
-					
-					if (t != null) {
-						setTile(t, x, y);
+					if(red>0) {
+						bounding_boxes[x + y * width] = new AABB(new Vector2f(x*2, -y*2), new Vector2f(1,1));
 					}
 					
 					if(entity_alpha > 0){
@@ -92,37 +87,11 @@ public class World {
 		
 	}
 	
-	public World() {
-		width = 64;
-		height = 64;
-		scale = 16;
-		
-		tiles = new byte[width * height];
-		bounding_boxes = new AABB[width * height];
-		
-		world = new Matrix4f().setTranslation(new Vector3f(0));
-		world.scale(scale);
-	}
-	
-	public void calculateView(Window window){
-		viewX = (window.getWidth()/(scale*2)) + 4;
-		viewY = (window.getHeight()/(scale*2)) + 4;
-	}
-	
 	public Matrix4f getWorldMatrix() { return world; }
 	
-	public void render(TileRenderer render, Shader shader, Camera cam) {
-		int posX = (int)cam.getPosition().x/ (scale * 2);
-		int posY = (int)cam.getPosition().y/ (scale * 2);
-	
-		for(int i = 0; i < viewX; i++) {
-			for(int j = 0; j< viewY; j++) {
-				Tile t = getTile(i-posX-(viewX/2)+1, j+posY-(viewY/2));
-				if(t != null)
-					render.renderTile(t, i-posX-(viewX/2)+1, -j-posY+(viewY/2), shader, world, cam);
-			}
-		}
-		
+	public void render(WorldRenderer renderer, Shader shader, Camera cam) {
+		renderer.renderMap(map, shader, cam);
+
 		for(Entity entity : entities) {
 			entity.render(shader, cam);
 		}
@@ -153,23 +122,6 @@ public class World {
 		
 		if (pos.y < (window.getHeight() / 2) - scale) pos.y = (window.getHeight() / 2) - scale;
 		if (pos.y > h - (window.getHeight() / 2) - scale) pos.y = h - (window.getHeight() / 2) - scale;
-	}
-	
-	public void setTile(Tile tile, int x, int y) {
-		tiles[x + y * width] = tile.getId();
-		if(tile.isSolid()) {
-			bounding_boxes[x + y * width] = new AABB(new Vector2f(x*2, -y*2), new Vector2f(1,1));
-		}else{
-			bounding_boxes[x + y * width] = null;
-		}
-	}
-	
-	public Tile getTile(int x, int y) {
-		try {
-			return Tile.tiles[tiles[x + y * width]];
-		}catch(ArrayIndexOutOfBoundsException e){
-			return null;
-		}
 	}
 	
 	public AABB getTileBoundingBox(int x, int y) {

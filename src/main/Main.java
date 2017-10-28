@@ -34,14 +34,13 @@ public class Main {
 		
 		glEnable(GL_TEXTURE_2D);	
 		
-		TileRenderer tiles = new TileRenderer();
+		WorldRenderer tiles = new WorldRenderer();
 		
 		Shader shader = new Shader("shader");
 		
 		Assets.initAsset();
 		
 		World world = new World("testLevel", camera);
-		world.calculateView(window);
 		
 		Gui gui = new Gui(window);
 		
@@ -67,7 +66,6 @@ public class Main {
 				if(window.hasResized()){
 					camera.setProjection(window.getWidth(), window.getHeight());
 					gui.resizeCamera(window);
-					world.calculateView(window);
 					glViewport(0, 0, window.getWidth(), window.getHeight());
 				}
 				
