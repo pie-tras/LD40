@@ -13,8 +13,8 @@ public class WorldRenderer {
 	private Matrix4f transform = new Matrix4f();
 	
 	public void renderMap(Texture texture, Shader shader, Camera cam) {
-		Vector2f position = new Vector2f((texture.getWidth()/2)-16, (-texture.getHeight()/2)+16),
-				scale = new Vector2f(texture.getWidth()/2, texture.getHeight()/2);
+		Vector2f position = new Vector2f((1024)-16, (-1024)+16),
+				scale = new Vector2f(1024, 1024);
 		
 		transform.identity().translate(position.x, position.y, 0).scale(scale.x, scale.y, 1);
 		

@@ -29,7 +29,7 @@ public class World {
 		map = new Texture("Map.png");
 		
 		try {
-			BufferedImage bound_sheet = ImageIO.read(new File("./levels/" + world + "/tiles2.png"));
+			BufferedImage bound_sheet = ImageIO.read(new File("./levels/" + world + "/bounds.png"));
 			BufferedImage entity_sheet = ImageIO.read(new File("./levels/" + world + "/entities.png"));
 		
 			width  = bound_sheet.getWidth();
