@@ -4,6 +4,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
+import audio.AudioMaster;
 import io.Window;
 import render.Animation;
 import render.Camera;
@@ -20,6 +21,7 @@ public class Player extends Entity{
 		super(ANIM_SIZE, transform, world, WIDTH, HEIGHT);
 		setAnimation(ANIM_IDLE, new Animation(1, 2, "player/idle"));
 		setAnimation(ANIM_WALK, new Animation(3, 10, "player/walk"));
+		AudioMaster.setListenerData(transform.pos.x, transform.pos.y, 0);
 	}
 	
 	@Override
@@ -39,6 +41,7 @@ public class Player extends Entity{
 		}
 		
 		move(movement);
+		AudioMaster.setListenerData(transform.pos.x, transform.pos.y, 0);
 		
 		if(movement.x != 0 || movement.y!=0)
 			useAnimation(ANIM_WALK);

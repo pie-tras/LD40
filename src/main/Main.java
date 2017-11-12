@@ -3,13 +3,20 @@ package main;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
-import org.lwjgl.opengl.*;
+import org.lwjgl.openal.AL10;
+import org.lwjgl.openal.AL11;
+import org.lwjgl.opengl.GL;
 
-import assets.*;
-import gui.*;
-import io.*;
-import render.*;
-import world.*;
+import assets.Assets;
+import audio.AudioMaster;
+import audio.Source;
+import gui.Gui;
+import io.Timer;
+import io.Window;
+import render.Camera;
+import render.Shader;
+import world.World;
+import world.WorldRenderer;
 
 public class Main {
 	
@@ -26,6 +33,9 @@ public class Main {
 		window.createWindow("Swarm");
 		
 		GL.createCapabilities();
+		
+		AudioMaster.init();
+		AL10.alDistanceModel(AL11.AL_EXPONENT_DISTANCE);
 		
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -101,6 +111,11 @@ public class Main {
 		}
 		
 		Assets.deleteAsset();
+		
+		for(Source source: AudioMaster.sources) {
+			source.delete();
+		}
+		AudioMaster.cleanUp();
 		
 		glfwTerminate();
 	}

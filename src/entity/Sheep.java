@@ -1,7 +1,11 @@
 package entity;
 
+import java.util.Random;
+
 import org.joml.Vector2f;
 
+import audio.AudioMaster;
+import audio.Source;
 import io.Window;
 import render.Animation;
 import render.Camera;
@@ -25,8 +29,11 @@ public class Sheep extends Entity{
 	
 	public final static int WIDTH=16;
 	public final static int HEIGHT=16;
+	
+	public Source source;
+	private Random rand = new Random();
 
-	public Sheep(Transform transform, World world) {
+	public Sheep(Transform transform, World world, String file) {
 		super(ANIM_SIZE, transform, world, WIDTH, HEIGHT);
 		setAnimation(ANIM_IDLER, new Animation(2, 2, "sheep/idleR"));
 		setAnimation(ANIM_IDLEL, new Animation(2, 2, "sheep/idleL"));
@@ -37,6 +44,15 @@ public class Sheep extends Entity{
 		setAnimation(ANIM_WALKL, new Animation(4, 5, "sheep/walkL"));
 		setAnimation(ANIM_WALKU, new Animation(4, 5, "sheep/walkU"));
 		setAnimation(ANIM_WALKD, new Animation(4, 5, "sheep/walkD"));
+		
+		int buffer = AudioMaster.loadSound("audio/"+file);
+		source = new Source();
+		int pitch = rand.nextInt(3)+1;
+		source.setLooping(true);
+		source.setPitch(pitch);
+		source.play(buffer);
+		source.setPosition(transform.pos.x, transform.pos.y, 2);
+		AudioMaster.sources.add(source);
 	}
 
 	@Override
@@ -73,6 +89,13 @@ public class Sheep extends Entity{
 		}
 		
 		move(movement);
+		source.setPosition(transform.pos.x, transform.pos.y, 2);
+		float disBetween = (float)Math.pow(Math.pow(World.getPlayerX()-transform.pos.x, 2) + Math.pow(World.getPlayerY()-transform.pos.y, 2), .5);
+		if(disBetween>30) {
+			source.pause();
+		} else if(disBetween<=30 && source.isPlaying()==false) {
+			source.continuePlaying();
+		}
 	}
 
 }

@@ -8,6 +8,7 @@ public class Source {
 	
 	public Source() {
 		sourceId = AL10.alGenSources();
+		AL10.alSourcef(sourceId, AL10.AL_ROLLOFF_FACTOR, 1.5f);
 	}
 	
 	public void play(int buffer) {

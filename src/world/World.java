@@ -24,6 +24,8 @@ public class World {
 	
 	private Matrix4f world;
 	
+	public static Player player;
+	
 	public World(String world, Camera camera){
 		
 		map = new Texture("Map.png");
@@ -64,12 +66,12 @@ public class World {
 						transform.pos.y = -y*2;
 						switch(entity_index){
 						case 1:
-							Player player = new Player(transform, this);
+							player = new Player(transform, this);
 							entities.add(player);
 							camera.getPosition().set(transform.pos.mul(-scale, new Vector3f()));
 							break;
 						case 2:
-							Sheep sheep = new Sheep(transform, this);
+							Sheep sheep = new Sheep(transform, this, "MistyMoor.wav");
 							entities.add(sheep);
 							break;
 						default:
@@ -133,4 +135,12 @@ public class World {
 	}
 	
 	public int getScale() { return scale; }
+	
+	public static float getPlayerX() {
+		return player.transform.pos.x;
+	}
+	
+	public static float getPlayerY() {
+		return player.transform.pos.y;
+	}
 }

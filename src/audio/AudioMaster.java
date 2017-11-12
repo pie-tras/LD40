@@ -13,12 +13,13 @@ import static org.lwjgl.openal.ALC10.*;
 public class AudioMaster
 {
 	private static List<Integer> buffers = new ArrayList<>();
+	public static List<Source> sources = new ArrayList<>();
 	private static long device;
 	private static long context;
 
 	public static void init()
 	{
-		final String defaultDeviceName = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
+		String defaultDeviceName = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
 		device = alcOpenDevice(defaultDeviceName);
 
 		int[] attributes = {0};
@@ -36,7 +37,7 @@ public class AudioMaster
 
 	public static int loadSound(String file)
 	{
-		final int buffer = AL10.alGenBuffers();
+		int buffer = AL10.alGenBuffers();
 		buffers.add(buffer);
 		WaveData wavFile = WaveData.create(file);
 		AL10.alBufferData(buffer, wavFile.format, wavFile.data, wavFile.samplerate);
@@ -46,7 +47,7 @@ public class AudioMaster
 
 	public static void cleanUp()
 	{
-		for (final int buffer : buffers)
+		for (int buffer : buffers)
 		{
 			alDeleteBuffers(buffer);
 		}

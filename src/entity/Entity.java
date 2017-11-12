@@ -29,7 +29,7 @@ public abstract class Entity {
 	protected Animation[] animations;
 	private int use_animation;
 	
-	protected Transform transform;
+	public Transform transform;
 	
 	protected World world;
 	
