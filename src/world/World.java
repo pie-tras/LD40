@@ -18,7 +18,7 @@ public class World {
 	private List<Entity> entities;
 	private int width;
 	private int height;
-	private int scale;
+	private float scale;
 	
 	private Texture map;
 	
@@ -26,10 +26,9 @@ public class World {
 	
 	public static Player player;
 	
-	public World(String world, Camera camera){
+	public World(String world, Camera camera, WorldRenderer renderer){
 		
 		map = new Texture("Map.png");
-		
 		try {
 			BufferedImage bound_sheet = ImageIO.read(new File("./levels/" + world + "/bounds.png"));
 			BufferedImage entity_sheet = ImageIO.read(new File("./levels/" + world + "/entities.png"));
@@ -66,7 +65,7 @@ public class World {
 						transform.pos.y = -y*2;
 						switch(entity_index){
 						case 1:
-							player = new Player(transform, this);
+							player = new Player(transform, this, renderer);
 							entities.add(player);
 							camera.getPosition().set(transform.pos.mul(-scale, new Vector3f()));
 							break;
@@ -93,7 +92,7 @@ public class World {
 	
 	public void render(WorldRenderer renderer, Shader shader, Camera cam) {
 		renderer.renderMap(map, shader, cam);
-
+		
 		for(Entity entity : entities) {
 			entity.render(shader, cam);
 		}
@@ -116,8 +115,8 @@ public class World {
 	public void correctCamera(Camera camera, Window window) {
 		Vector3f pos = camera.getPosition();
 		
-		int w = -width*scale * 2;
-		int h = height*scale * 2;
+		float w = -width*scale * 2;
+		float h = height*scale * 2;
 		
 		if (pos.x > -(window.getWidth() / 2) + scale) pos.x = -(window.getWidth() / 2) + scale;
 		if (pos.x < w + (window.getWidth() / 2) + scale) pos.x = w + (window.getWidth() / 2) + scale;
@@ -134,7 +133,17 @@ public class World {
 		}
 	}
 	
-	public int getScale() { return scale; }
+	public float getScale() { return scale; }
+	
+	public void setScale(float scale, Camera camera) { 
+		float scaleSize = scale/this.scale;
+		System.out.println(scaleSize);
+		this.scale = scale;
+		for(Entity entity : entities) {
+			entity.transform.setScale(scaleSize);
+			entity.transform.pos.set(entity.transform.pos.x*scaleSize, entity.transform.pos.y*scaleSize, 0);
+		}
+	}
 	
 	public static float getPlayerX() {
 		return player.transform.pos.x;

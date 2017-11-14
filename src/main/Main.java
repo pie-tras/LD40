@@ -50,7 +50,7 @@ public class Main {
 		
 		Assets.initAsset();
 		
-		World world = new World("testLevel", camera);
+		World world = new World("testLevel", camera, tiles);
 		
 		Gui gui = new Gui(window);
 		

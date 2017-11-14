@@ -9,6 +9,7 @@ import io.Window;
 import render.Animation;
 import render.Camera;
 import world.World;
+import world.WorldRenderer;
 
 public class Player extends Entity{
 	public static final int ANIM_IDLE = 0;
@@ -17,8 +18,12 @@ public class Player extends Entity{
 	public final static int WIDTH=16;
 	public final static int HEIGHT=16;
 	
-	public Player(Transform transform, World world) {
+	private WorldRenderer render;
+	private boolean scaled = false;
+	
+	public Player(Transform transform, World world, WorldRenderer renderer) {
 		super(ANIM_SIZE, transform, world, WIDTH, HEIGHT);
+		render = renderer;
 		setAnimation(ANIM_IDLE, new Animation(1, 2, "player/idle"));
 		setAnimation(ANIM_WALK, new Animation(3, 10, "player/walk"));
 		AudioMaster.setListenerData(transform.pos.x, transform.pos.y, 0);
@@ -38,6 +43,17 @@ public class Player extends Entity{
 		}
 		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_D)) {
 			movement.add(10*delta, 0);
+		}
+		if(window.getInput().isKeyPressed(GLFW.GLFW_KEY_E)) {
+			if(scaled) {
+				render.rescale(new Vector2f(1024,1024));
+				world.setScale(16, camera);
+			}
+			if(!scaled) {
+				render.rescale(new Vector2f(2048,2048));
+				world.setScale(32, camera);
+			}
+			scaled=!scaled;
 		}
 		
 		move(movement);

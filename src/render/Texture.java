@@ -10,6 +10,7 @@ import java.nio.*;
 import javax.imageio.*;
 
 import org.lwjgl.*;
+import org.lwjgl.opengl.GL11;
 
 public class Texture {
 	private int id;
