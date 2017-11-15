@@ -1,5 +1,7 @@
 package world;
 
+import static org.lwjgl.glfw.GLFW.*;
+
 import java.awt.image.*;
 import java.io.*;
 import java.util.*;
@@ -7,6 +9,7 @@ import java.util.*;
 import javax.imageio.*;
 
 import org.joml.*;
+import org.lwjgl.glfw.*;
 
 import collision.*;
 import entity.*;
@@ -26,7 +29,7 @@ public class World {
 	
 	public static Player player;
 	
-	public World(String world, Camera camera, WorldRenderer renderer){
+	public World(String world, Camera camera){
 		
 		map = new Texture("Map.png");
 		try {
@@ -36,7 +39,9 @@ public class World {
 			width  = bound_sheet.getWidth();
 			height  = bound_sheet.getHeight();
 			
-			scale=16;
+			GLFWVidMode vid = glfwGetVideoMode(glfwGetPrimaryMonitor());
+			scale=vid.width()/64;
+			System.out.println("Scale should be 20?   "+scale);
 			
 			this.world = new Matrix4f().setTranslation(new Vector3f(0));
 			this.world.scale(scale);
@@ -65,7 +70,7 @@ public class World {
 						transform.pos.y = -y*2;
 						switch(entity_index){
 						case 1:
-							player = new Player(transform, this, renderer);
+							player = new Player(transform, this);
 							entities.add(player);
 							camera.getPosition().set(transform.pos.mul(-scale, new Vector3f()));
 							break;
@@ -114,15 +119,15 @@ public class World {
 	
 	public void correctCamera(Camera camera, Window window) {
 		Vector3f pos = camera.getPosition();
-		
-		float w = -width*scale * 2;
-		float h = height*scale * 2;
-		
-		if (pos.x > -(window.getWidth() / 2) + scale) pos.x = -(window.getWidth() / 2) + scale;
-		if (pos.x < w + (window.getWidth() / 2) + scale) pos.x = w + (window.getWidth() / 2) + scale;
-		
-		if (pos.y < (window.getHeight() / 2) - scale) pos.y = (window.getHeight() / 2) - scale;
-		if (pos.y > h - (window.getHeight() / 2) - scale) pos.y = h - (window.getHeight() / 2) - scale;
+	 
+	 	float w = -width*scale*2;
+	 	float h = height*scale*2;
+	  		
+	  	if (pos.x > -(window.getWidth() / 2) + scale) pos.x = -(window.getWidth() / 2) + scale;
+	  	if (pos.x < w + (window.getWidth() / 2) + scale) pos.x = w + (window.getWidth() / 2) + scale;
+	 		
+	 	if (pos.y < (window.getHeight() / 2) - scale) pos.y = (window.getHeight() / 2) - scale;
+	 	if (pos.y > h - (window.getHeight() / 2) - scale) pos.y = h - (window.getHeight() / 2) - scale;
 	}
 	
 	public AABB getTileBoundingBox(int x, int y) {
@@ -135,16 +140,6 @@ public class World {
 	
 	public float getScale() { return scale; }
 	
-	public void setScale(float scale, Camera camera) { 
-		float scaleSize = scale/this.scale;
-		System.out.println(scaleSize);
-		this.scale = scale;
-		for(Entity entity : entities) {
-			entity.transform.setScale(scaleSize);
-			entity.transform.pos.set(entity.transform.pos.x*scaleSize, entity.transform.pos.y*scaleSize, 0);
-		}
-	}
-	
 	public static float getPlayerX() {
 		return player.transform.pos.x;
 	}
@@ -152,4 +147,14 @@ public class World {
 	public static float getPlayerY() {
 		return player.transform.pos.y;
 	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+	
+	
 }

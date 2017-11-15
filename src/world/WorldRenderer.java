@@ -9,20 +9,19 @@ import render.Shader;
 import render.Texture;
 
 public class WorldRenderer {
-	
+
 	private Matrix4f transform = new Matrix4f();
-	private Vector2f position = new Vector2f((1024)-16, (-1024)+16),
-			scale = new Vector2f(1024, 1024);
 	
-	private Texture texture;
-	private Shader shader;
-	private Camera cam;
-	
+	private World world;
+
+	public WorldRenderer(World world){
+		this.world = world;
+	}
+
 	public void renderMap(Texture texture, Shader shader, Camera cam) {
-		
-		this.texture = texture;
-		this.cam = cam;
-		this.shader = shader;
+
+		Vector2f position = new Vector2f((world.getWidth()*world.getScale())-world.getScale(), (-world.getHeight()*world.getScale())+world.getScale()),
+				scale = new Vector2f((world.getWidth()*world.getScale()), (world.getWidth()*world.getScale()));
 		
 		transform.identity().translate(position.x, position.y, 0).scale(scale.x, scale.y, 1);
 		
@@ -30,15 +29,5 @@ public class WorldRenderer {
 		texture.bind(0);
 		Assets.getModel().render();
 	}
-	
-	public void rescale(Vector2f rescale) {
-		scale.x=rescale.x/scale.x;
-		scale.y=rescale.y/scale.y;
-		position.x*=scale.x;
-		position.y*=scale.y;
-		scale.x=rescale.x;
-		scale.y=rescale.y;
-		
-		transform.identity().translate(position.x, position.y, 0).scale(scale.x, scale.y, 1);
-	}
+
 }

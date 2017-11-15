@@ -1,8 +1,5 @@
 package gui;
 
-import org.joml.*;
-
-import assets.*;
 import io.*;
 import render.*;
 

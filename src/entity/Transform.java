@@ -18,8 +18,4 @@ public class Transform {
 		return target;
 	}
 	
-	public void setScale(float scaleSize) {
-		this.scale = new Vector3f(scale.x*scaleSize, scale.y*scaleSize, scale.z*scaleSize);
-	}
-	
 }

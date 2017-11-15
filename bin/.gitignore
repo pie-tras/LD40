@@ -1,4 +1,5 @@
 /assets/
+/audio/
 /collision/
 /entity/
 /gui/
@@ -6,4 +7,3 @@
 /main/
 /render/
 /world/
-/audio/

@@ -20,6 +20,8 @@ import world.WorldRenderer;
 
 public class Main {
 	
+	private float scale;
+	
 	public Main() {
 		Window.setCallbacks();
 	
@@ -28,8 +30,6 @@ public class Main {
 		}
 		
 		Window window = new Window();
-		window.setSize(860, 640);
-		window.setFullscreen(false);
 		window.createWindow("Swarm");
 		
 		GL.createCapabilities();
@@ -40,17 +40,17 @@ public class Main {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
-		Camera camera = new Camera(window.getWidth(), window.getHeight());
-		
 		glEnable(GL_TEXTURE_2D);	
 		
-		WorldRenderer tiles = new WorldRenderer();
+		Camera camera = new Camera(window.getWidth(), window.getHeight());
+		
+		World world = new World("testLevel", camera);
+		
+		WorldRenderer map = new WorldRenderer(world);
 		
 		Shader shader = new Shader("shader");
 		
 		Assets.initAsset();
-		
-		World world = new World("testLevel", camera, tiles);
 		
 		Gui gui = new Gui(window);
 		
@@ -74,17 +74,18 @@ public class Main {
 			
 			while(unprocessed >= frame_cap) {
 				if(window.hasResized()){
+					scale = window.getHeight()/640;
 					camera.setProjection(window.getWidth(), window.getHeight());
 					gui.resizeCamera(window);
 					glViewport(0, 0, window.getWidth(), window.getHeight());
 				}
 				
+				if(window.getInput().isKeyReleased(GLFW_KEY_ESCAPE)) {
+ 					glfwSetWindowShouldClose(window.getWindow(), true);
+ 				}
+				
 				unprocessed-=frame_cap;
 				can_render = true;
-	
-				if(window.getInput().isKeyReleased(GLFW_KEY_ESCAPE)) {
-					glfwSetWindowShouldClose(window.getWindow(), true);
-				}
 				
 				world.update((float)frame_cap, window, camera);
 				
@@ -101,7 +102,7 @@ public class Main {
 			if(can_render) {
 				glClear(GL_COLOR_BUFFER_BIT);
 				
-				world.render(tiles, shader, camera);
+				world.render(map, shader, camera);
 			
 				gui.render();
 				
