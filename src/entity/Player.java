@@ -20,6 +20,7 @@ public class Player extends Entity{
 		setAnimation(ANIM_IDLE, new Animation(1, 2, "player/idle"));
 		setAnimation(ANIM_WALK, new Animation(3, 10, "player/walk"));
 		AudioMaster.setListenerData(transform.pos.x, transform.pos.y, 0);
+		hasSound = false;
 	}
 	
 	@Override
@@ -36,6 +37,9 @@ public class Player extends Entity{
 		}
 		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_D)) {
 			movement.add(10*delta, 0);
+		}
+		if(window.getInput().isKeyPressed(GLFW.GLFW_KEY_E)) {
+			world.kill(this);
 		}
 	
 		move(movement);

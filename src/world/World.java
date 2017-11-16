@@ -19,6 +19,7 @@ import render.*;
 public class World {
 	private AABB[] bounding_boxes;
 	private List<Entity> entities;
+	private List<Entity> kill;
 	private int width;
 	private int height;
 	private float scale;
@@ -51,6 +52,7 @@ public class World {
 			
 			bounding_boxes = new AABB[width * height];
 			entities = new ArrayList<Entity>();
+			kill = new ArrayList<Entity>();
 			
 			Transform transform;
 			
@@ -115,6 +117,26 @@ public class World {
 			}
 			entities.get(i).checkCollisionsTiles();
 		}
+		
+		if(!kill.isEmpty()) {
+			for(int i = 0; i < kill.size(); i++) {
+				if(kill.get(i).hasSound) {
+					kill.get(i).getSource().delete();;
+				}
+				
+				entities.remove(kill.get(i));
+			}
+			kill.removeAll(kill);
+		}
+		
+		if(!player.isAlive) {
+			System.out.println(" ");
+			System.out.println("---------");
+			System.out.println("YOU DIED!");
+			System.out.println("---------");
+			glfwSetWindowShouldClose(window.getWindow(), true);
+		}
+		
 	}
 	
 	public void correctCamera(Camera camera, Window window) {
@@ -136,6 +158,11 @@ public class World {
 		}catch(ArrayIndexOutOfBoundsException e){
 			return null;
 		}
+	}
+	
+	public void kill(Entity e) {
+		kill.add(e);
+		e.isAlive = false;
 	}
 	
 	public float getScale() { return scale; }

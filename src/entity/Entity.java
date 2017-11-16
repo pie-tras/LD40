@@ -7,6 +7,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import assets.Assets;
+import audio.Source;
 import collision.AABB;
 import collision.Collision;
 import io.Timer;
@@ -35,6 +36,11 @@ public abstract class Entity {
 	
 	protected int width;
 	protected int height;
+	
+	protected Source source;
+	
+	public boolean isAlive = true;
+	public boolean hasSound;
 	
 	public Entity(int max_animations, Transform transform, World world, int width, int height) {
 
@@ -206,4 +212,8 @@ public abstract class Entity {
 		
 		return movement;
 	}
+	public Source getSource() {
+		return this.source;
+	}
+	
 }

@@ -30,7 +30,6 @@ public class Sheep extends Entity{
 	public final static int WIDTH=16;
 	public final static int HEIGHT=16;
 	
-	public Source source;
 	private Random rand = new Random();
 
 	public Sheep(Transform transform, World world, String file) {
@@ -53,13 +52,15 @@ public class Sheep extends Entity{
 		source.play(buffer);
 		source.setPosition(transform.pos.x, transform.pos.y, 2);
 		AudioMaster.sources.add(source);
+		hasSound = true;
 	}
 
 	@Override
 	public void update(float delta, Window window, Camera camera) {
 		
 		Vector2f movement = wander(delta, transform, 2);
-	
+		int killChance = rand.nextInt(200);
+		
 		if(movement.y>0){
 			lastMove=0;
 			useAnimation(ANIM_WALKU);
@@ -96,6 +97,11 @@ public class Sheep extends Entity{
 		} else if(disBetween<=30 && source.isPlaying()==false) {
 			source.continuePlaying();
 		}
+		
+		if(killChance == 0) {
+			world.kill(this);
+		}
 	}
 
+	
 }
