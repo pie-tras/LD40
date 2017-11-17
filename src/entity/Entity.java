@@ -41,8 +41,9 @@ public abstract class Entity {
 	
 	public boolean isAlive = true;
 	public boolean hasSound;
+	public boolean hasBox;
 	
-	public Entity(int max_animations, Transform transform, World world, int width, int height) {
+	public Entity(int max_animations, Transform transform, World world, int width, int height, boolean hasBox) {
 
 		this.animations = new Animation[max_animations];
 		
@@ -54,7 +55,9 @@ public abstract class Entity {
 		this.transform = transform;
 		this.use_animation = 0;
 		
-		bounding_box = new AABB(new Vector2f(transform.pos.x, transform.pos.y), new Vector2f(width/16, height/16));
+		if(hasBox) {
+			bounding_box = new AABB(new Vector2f(transform.pos.x, transform.pos.y), new Vector2f(width/16, height/16));
+		}
 	}
 	
 	
@@ -159,19 +162,21 @@ public abstract class Entity {
 		Assets.getModel().render();
 	}
 
-	public void checkCollisionsEntities(Entity entity) {
-		Collision collision = bounding_box.getCollision(entity.bounding_box);
+	public void checkCollisionsEntities(Entity entity, Entity entity2) {
+		if(entity.hasBox && entity2.hasBox) {
+			Collision collision = bounding_box.getCollision(entity.bounding_box);
 		
-		if(collision.isIntersecting) {
+			if(collision.isIntersecting) {
 			
-			collision.distance.x /= 2;
-			collision.distance.y /= 2;
+				collision.distance.x /= 2;
+				collision.distance.y /= 2;
+				
+				bounding_box.correctPosition(entity.bounding_box, collision);
+				transform.pos.set(bounding_box.getCenter().x, bounding_box.getCenter().y, 0);
 			
-			bounding_box.correctPosition(entity.bounding_box, collision);
-			transform.pos.set(bounding_box.getCenter().x, bounding_box.getCenter().y, 0);
-			
-			entity.bounding_box.correctPosition(bounding_box, collision);
-			entity.transform.pos.set(entity.bounding_box.getCenter().x, entity.bounding_box.getCenter().y, 0);
+				entity.bounding_box.correctPosition(bounding_box, collision);
+				entity.transform.pos.set(entity.bounding_box.getCenter().x, entity.bounding_box.getCenter().y, 0);
+			}
 		}
 	}
 	

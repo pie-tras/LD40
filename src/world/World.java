@@ -35,7 +35,7 @@ public class World {
 		map = new Texture("Map.png");
 		try {
 			BufferedImage bound_sheet = ImageIO.read(new File("./levels/" + world + "/bounds.png"));
-			BufferedImage entity_sheet = ImageIO.read(new File("./levels/" + world + "/entities.png"));
+			BufferedImage entity_sheet = ImageIO.read(new File("./levels/" + world + "/entities3.png"));
 		
 			width  = bound_sheet.getWidth();
 			height  = bound_sheet.getHeight();
@@ -80,6 +80,10 @@ public class World {
 							Sheep sheep = new Sheep(transform, this, "MistyMoor.wav");
 							entities.add(sheep);
 							break;
+						case 3:
+							Particle particle = new Particle(transform, this);
+							entities.add(particle);
+							break;
 						default:
 							
 							break;
@@ -111,17 +115,19 @@ public class World {
 		}
 		
 		for(int i = 0; i < entities.size(); i++) {
-			entities.get(i).checkCollisionsTiles();
+			if(entities.get(i).hasBox)
+				entities.get(i).checkCollisionsTiles();
 			for(int j = i+1; j< entities.size(); j++) {
-				entities.get(i).checkCollisionsEntities(entities.get(j));
+				entities.get(i).checkCollisionsEntities(entities.get(j), entities.get(i));
 			}
-			entities.get(i).checkCollisionsTiles();
+			if(entities.get(i).hasBox)
+				entities.get(i).checkCollisionsTiles();
 		}
 		
 		if(!kill.isEmpty()) {
 			for(int i = 0; i < kill.size(); i++) {
 				if(kill.get(i).hasSound) {
-					kill.get(i).getSource().delete();;
+					kill.get(i).getSource().delete();
 				}
 				
 				entities.remove(kill.get(i));

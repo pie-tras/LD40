@@ -16,11 +16,12 @@ public class Player extends Entity{
 	public final static int HEIGHT=16;
 	
 	public Player(Transform transform, World world) {
-		super(ANIM_SIZE, transform, world, WIDTH, HEIGHT);
+		super(ANIM_SIZE, transform, world, WIDTH, HEIGHT, true);
 		setAnimation(ANIM_IDLE, new Animation(1, 2, "player/idle"));
 		setAnimation(ANIM_WALK, new Animation(3, 10, "player/walk"));
 		AudioMaster.setListenerData(transform.pos.x, transform.pos.y, 0);
 		hasSound = false;
+		hasBox = true;
 	}
 	
 	@Override
