@@ -12,17 +12,25 @@ import org.joml.*;
 import org.lwjgl.glfw.*;
 
 import collision.*;
+import effects.Explosion;
+import effects.Particle;
 import entity.*;
 import io.*;
 import render.*;
 
 public class World {
 	private AABB[] bounding_boxes;
+	
 	private List<Entity> entities;
-	private List<Entity> kill;
+	private List<Particle> particles;
+	
+	private List<Entity> entityKill;
+	
 	private int width;
 	private int height;
 	private float scale;
+	
+	private boolean canUpdateParticle = false, canRenderParticle = false;
 	
 	private Texture map;
 	
@@ -51,8 +59,11 @@ public class World {
 			int[] colorEntitySheet = entity_sheet.getRGB(0, 0, width, height, null, 0, width);
 			
 			bounding_boxes = new AABB[width * height];
+			
 			entities = new ArrayList<Entity>();
-			kill = new ArrayList<Entity>();
+			particles = new ArrayList<Particle>();
+			
+			entityKill = new ArrayList<Entity>();
 			
 			Transform transform;
 			
@@ -81,8 +92,8 @@ public class World {
 							entities.add(sheep);
 							break;
 						case 3:
-							Particle particle = new Particle(transform, this);
-							entities.add(particle);
+							Explosion e = new Explosion(transform, this);
+							particles.add(e);
 							break;
 						default:
 							
@@ -97,6 +108,12 @@ public class World {
 			e.printStackTrace();
 		}
 		
+		
+		
+	}
+	
+	public void rmParticle(Particle p) {
+		particles.remove(p);
 	}
 	
 	public Matrix4f getWorldMatrix() { return world; }
@@ -107,6 +124,13 @@ public class World {
 		for(Entity entity : entities) {
 			entity.render(shader, cam);
 		}
+		
+		for(Particle p : particles) {
+			if(!p.isShouldRemove()) {
+				p.render(shader, cam);
+			}
+		}
+		
 	}
 	
 	public void update(float delta, Window window, Camera camera) {
@@ -114,25 +138,30 @@ public class World {
 			entity.update(delta, window, camera);
 		}
 		
-		for(int i = 0; i < entities.size(); i++) {
-			if(entities.get(i).hasBox)
-				entities.get(i).checkCollisionsTiles();
-			for(int j = i+1; j< entities.size(); j++) {
-				entities.get(i).checkCollisionsEntities(entities.get(j), entities.get(i));
+		for(Particle p : particles) {
+			if(!p.isShouldRemove()) {
+				p.update(delta, window, camera);
 			}
-			if(entities.get(i).hasBox)
-				entities.get(i).checkCollisionsTiles();
+		}
+	
+		
+		for(int i = 0; i < entities.size(); i++) {
+			entities.get(i).checkCollisionsTiles();
+			for(int j = i+1; j< entities.size(); j++) {
+				entities.get(i).checkCollisionsEntities(entities.get(j));
+			}
+			entities.get(i).checkCollisionsTiles();
 		}
 		
-		if(!kill.isEmpty()) {
-			for(int i = 0; i < kill.size(); i++) {
-				if(kill.get(i).hasSound) {
-					kill.get(i).getSource().delete();
+		if(!entityKill.isEmpty()) {
+			for(int i = 0; i < entityKill.size(); i++) {
+				if(entityKill.get(i).hasSound) {
+					entityKill.get(i).getSource().delete();;
 				}
 				
-				entities.remove(kill.get(i));
+				entities.remove(entityKill.get(i));
 			}
-			kill.removeAll(kill);
+			entityKill.removeAll(entityKill);
 		}
 		
 		if(!player.isAlive) {
@@ -167,7 +196,7 @@ public class World {
 	}
 	
 	public void kill(Entity e) {
-		kill.add(e);
+		entityKill.add(e);
 		e.isAlive = false;
 	}
 	
@@ -189,5 +218,9 @@ public class World {
 		return height;
 	}
 	
+	public List<Particle> getParticles() {
+		return particles;
+	}
+
 	
 }

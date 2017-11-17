@@ -33,7 +33,7 @@ public class Sheep extends Entity{
 	private Random rand = new Random();
 
 	public Sheep(Transform transform, World world, String file) {
-		super(ANIM_SIZE, transform, world, WIDTH, HEIGHT, true);
+		super(ANIM_SIZE, transform, world, WIDTH, HEIGHT);
 		setAnimation(ANIM_IDLER, new Animation(2, 2, "sheep/idleR"));
 		setAnimation(ANIM_IDLEL, new Animation(2, 2, "sheep/idleL"));
 		setAnimation(ANIM_IDLEU, new Animation(2, 2, "sheep/idleU"));
@@ -53,7 +53,6 @@ public class Sheep extends Entity{
 		source.setPosition(transform.pos.x, transform.pos.y, 2);
 		AudioMaster.sources.add(source);
 		hasSound = true;
-		hasBox = true;
 	}
 
 	@Override
@@ -99,9 +98,9 @@ public class Sheep extends Entity{
 			source.continuePlaying();
 		}
 		
-		if(killChance == 0) {
-			world.kill(this);
-		}
+//		if(killChance == 0) {
+//			world.kill(this);
+//		}
 	}
 
 	
