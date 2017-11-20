@@ -1,4 +1,4 @@
-#version 120
+#version 400
 
 attribute vec3 vertices;
 attribute vec2 textures;

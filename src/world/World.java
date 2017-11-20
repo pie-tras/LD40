@@ -12,9 +12,9 @@ import org.joml.*;
 import org.lwjgl.glfw.*;
 
 import collision.*;
-import effects.Explosion;
-import effects.Particle;
+import effects.*;
 import entity.*;
+import font.*;
 import io.*;
 import render.*;
 
@@ -108,8 +108,6 @@ public class World {
 			e.printStackTrace();
 		}
 		
-		
-		
 	}
 	
 	public void rmParticle(Particle p) {
@@ -120,7 +118,7 @@ public class World {
 	
 	public void render(WorldRenderer renderer, Shader shader, Camera cam) {
 		renderer.renderMap(map, shader, cam);
-		
+	
 		for(Entity entity : entities) {
 			entity.render(shader, cam);
 		}

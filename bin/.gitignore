@@ -1,10 +1,11 @@
 /assets/
 /audio/
 /collision/
+/effects/
 /entity/
 /gui/
 /io/
 /main/
 /render/
 /world/
-/effects/
+/font/

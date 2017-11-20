@@ -25,6 +25,8 @@ public class WorldRenderer {
 		
 		transform.identity().translate(position.x, position.y, 0).scale(scale.x, scale.y, 1);
 		
+		shader.bind();
+		
 		shader.setUniform("projection", cam.getProjection().mul(transform));
 		texture.bind(0);
 		Assets.getModel().render();

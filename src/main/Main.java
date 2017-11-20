@@ -3,6 +3,7 @@ package main;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
+import org.joml.*;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.AL11;
 import org.lwjgl.opengl.GL;
@@ -10,6 +11,7 @@ import org.lwjgl.opengl.GL;
 import assets.Assets;
 import audio.AudioMaster;
 import audio.Source;
+import font.*;
 import gui.Gui;
 import io.Timer;
 import io.Window;
@@ -21,6 +23,8 @@ import world.WorldRenderer;
 public class Main {
 	
 	private float scale;
+	
+	private Font font;
 	
 	public Main() {
 		Window.setCallbacks();
@@ -41,7 +45,7 @@ public class Main {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
 		glEnable(GL_TEXTURE_2D);	
-		
+
 		Camera camera = new Camera(window.getWidth(), window.getHeight());
 		
 		World world = new World("testLevel", camera);
@@ -49,11 +53,14 @@ public class Main {
 		WorldRenderer map = new WorldRenderer(world);
 		
 		Shader shader = new Shader("shader");
+		Shader fontShader = new Shader("font");
+		
+		font = new Font(fontShader);
 		
 		Assets.initAsset();
 		
-		Gui gui = new Gui(window);
-		
+		Gui gui = new Gui(window, camera, shader);
+	
 		double frame_cap = 1.0/60.0;
 		
 		double frame_time = 0;
@@ -105,6 +112,13 @@ public class Main {
 				world.render(map, shader, camera);
 			
 				gui.render();
+			
+				//Messages///////////////
+				
+				font.render("The Kingdom of Ancrodora!!!!!!", new Vector2f(0, 100), new Vector2f(8, 8), new Vector3f(66, 0, 0));
+				
+				///////////////
+				
 				
 				window.swapBuffers();
 				frames++;
