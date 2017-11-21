@@ -1,27 +1,20 @@
 package effects;
 
-import java.util.Random;
+import org.joml.*;
 
-import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
-
-import assets.Assets;
-import audio.Source;
-import entity.Transform;
-import io.Timer;
-import io.Window;
-import render.Animation;
-import render.Camera;
-import render.Shader;
-import world.World;
+import assets.*;
+import audio.*;
+import entity.*;
+import io.*;
+import render.*;
+import world.*;
 
 public abstract class Particle {
 	
+	private Shader shader;
+	
 	private boolean endOfLife = true;
-	private int dx, dy, max;
-	private int Dis;
-	private Random rand = new Random();
+	private float Dis = 1;
 	private double waitTimeStart = 0;
 	
 	protected Animation[] animations;
@@ -30,17 +23,21 @@ public abstract class Particle {
 	public Transform transform;
 	
 	protected World world;
-	
+
 	protected int width;
 	protected int height;
 	
 	protected Source source;
 	
+	protected Vector3f color;
+	
 	protected boolean shouldRemove = false;
 	
-	public Particle(int max_animations, Transform transform, World world, int width, int height) {
+	public Particle(Shader shader, Transform transform, World world, int width, int height) {
 
-		this.animations = new Animation[max_animations];
+		this.shader = shader;
+		
+		this.animations = new Animation[1];
 		
 		this.world = world;
 		
@@ -64,36 +61,28 @@ public abstract class Particle {
 		transform.pos.add(new Vector3f(direction, 0));
 	}
 	
-	protected Vector2f drop(float delta, Transform transform){
-		Vector2f movement = new Vector2f();
-
+	protected void regulate(){
 		if(endOfLife == true){
 			waitTimeStart = Timer.getTime();
-			dx = rand.nextInt(20)-10;
-			dy = rand.nextInt(20)-10;
-			Dis = rand.nextInt(5)+1;
 			endOfLife = false;
 		}
 		
-		if((int)(Timer.getTime()-waitTimeStart)==Dis){
+		if((int)(Timer.getTime()-waitTimeStart)>=Dis){
 			endOfLife = true;
 			shouldRemove=true;
 		}
-		
-		movement.add(dx*delta, dy*delta);
-		
-		return movement;
 	}
 	
 	public abstract void update(float delta, Window window, Camera camera);
 		
 	
-	public void render(Shader shader, Camera camera) {
+	public void render(Camera camera) {
 		Matrix4f target = camera.getProjection();
 		target.mul(world.getWorldMatrix());
 		shader.bind();
 		shader.setUniform("sampler", 0);
-		shader.setUniform("projection", transform.getProjection(target));
+		shader.setUniform("fontColor", new Vector3f(color.x/255, color.y/255, color.z/255));
+		shader.setUniform("projection", transform.getProjection(target).scale(width, height, 0));
 		animations[use_animation].bind(0);
 		Assets.getModel().render();
 	}

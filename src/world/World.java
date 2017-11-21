@@ -30,7 +30,7 @@ public class World {
 	private int height;
 	private float scale;
 	
-	private boolean canUpdateParticle = false, canRenderParticle = false;
+	private Shader particleShader = new Shader("particle");
 	
 	private Texture map;
 	
@@ -92,7 +92,7 @@ public class World {
 							entities.add(sheep);
 							break;
 						case 3:
-							Explosion e = new Explosion(transform, this);
+							Explosion e = new Explosion(particleShader, transform, this, 5, new Vector3f(155, 66, 100));
 							particles.add(e);
 							break;
 						default:
@@ -110,10 +110,6 @@ public class World {
 		
 	}
 	
-	public void rmParticle(Particle p) {
-		particles.remove(p);
-	}
-	
 	public Matrix4f getWorldMatrix() { return world; }
 	
 	public void render(WorldRenderer renderer, Shader shader, Camera cam) {
@@ -125,7 +121,7 @@ public class World {
 		
 		for(Particle p : particles) {
 			if(!p.isShouldRemove()) {
-				p.render(shader, cam);
+				p.render(cam);
 			}
 		}
 		
@@ -141,7 +137,7 @@ public class World {
 				p.update(delta, window, camera);
 			}
 		}
-	
+		
 		
 		for(int i = 0; i < entities.size(); i++) {
 			entities.get(i).checkCollisionsTiles();
@@ -220,5 +216,8 @@ public class World {
 		return particles;
 	}
 
+	public Shader getParticleShader() {
+		return particleShader;
+	}
 	
 }

@@ -157,6 +157,7 @@ public class Font {
 			transform.identity().translate((position.x+(i*(scale.x*2)))-msg.length()*scale.x, position.y, 0).scale(scale.x, scale.y, 1);
 		
 			shader.bind();
+			shader.setUniform("sampler", 0);
 			shader.setUniform("fontColor", new Vector3f(color.x/255, color.y/255, color.z/255));
 			shader.setUniform("projection", cam.getProjection().mul(transform));
 		

@@ -4,6 +4,7 @@ import org.joml.*;
 import org.lwjgl.glfw.*;
 
 import audio.*;
+import effects.*;
 import io.*;
 import render.*;
 import world.*;
@@ -29,6 +30,7 @@ public class Player extends Entity{
 		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_A)) {
 			movement.add(-10*delta, 0);
 		}
+		
 		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_W)) {
 			movement.add(0, 10*delta);
 		}
@@ -40,6 +42,11 @@ public class Player extends Entity{
 		}
 		if(window.getInput().isKeyPressed(GLFW.GLFW_KEY_E)) {
 			world.kill(this);
+		}
+		
+		if(window.getInput().isKeyPressed(GLFW.GLFW_KEY_SPACE)) {
+			Explosion e = new Explosion(world.getParticleShader(), transform, world, 16, new Vector3f(5, 166, 100));
+			world.getParticles().add(e);
 		}
 	
 		move(movement);
