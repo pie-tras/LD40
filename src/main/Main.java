@@ -3,7 +3,8 @@ package main;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
-import org.joml.*;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.AL11;
 import org.lwjgl.opengl.GL;
@@ -11,12 +12,13 @@ import org.lwjgl.opengl.GL;
 import assets.Assets;
 import audio.AudioMaster;
 import audio.Source;
-import font.*;
+import font.Font;
 import gui.Gui;
 import io.Timer;
 import io.Window;
 import render.Camera;
 import render.Shader;
+import world.Menu;
 import world.World;
 import world.WorldRenderer;
 
@@ -25,6 +27,12 @@ public class Main {
 	private float scale;
 	
 	private Font font;
+	
+	private Menu menu;
+	private World world;
+	private WorldRenderer map;
+	
+	private boolean menuOff = false;
 	
 	public Main() {
 		Window.setCallbacks();
@@ -48,9 +56,6 @@ public class Main {
 
 		Camera camera = new Camera(window.getWidth(), window.getHeight());
 		
-		World world = new World("testLevel", camera);
-		
-		WorldRenderer map = new WorldRenderer(world);
 		
 		Shader shader = new Shader("shader");
 		Shader fontShader = new Shader("font");
@@ -68,6 +73,10 @@ public class Main {
 		
 		double time = Timer.getTime();
 		double unprocessed = 0;
+		
+		
+		
+		menu  = new Menu();
 		
 		while(!window.shouldClose()) {
 			boolean can_render = false;
@@ -90,13 +99,21 @@ public class Main {
 				if(window.getInput().isKeyReleased(GLFW_KEY_ESCAPE)) {
  					glfwSetWindowShouldClose(window.getWindow(), true);
  				}
+				if(window.getInput().isKeyPressed(GLFW_KEY_Q) && !menuOff) {
+
+					world = new World("testLevel", camera);
+					
+					map = new WorldRenderer(world);
+					menuOff=true;
+				}
 				
 				unprocessed-=frame_cap;
 				can_render = true;
 				
-				world.update((float)frame_cap, window, camera);
-				
-				world.correctCamera(camera, window);
+				if(menuOff) {
+					world.update((float)frame_cap, window, camera);
+					world.correctCamera(camera, window);
+				}
 				
 				window.update();
 				if(frame_time>=1.0) {
@@ -109,7 +126,10 @@ public class Main {
 			if(can_render) {
 				glClear(GL_COLOR_BUFFER_BIT);
 				
-				world.render(map, shader, camera);
+				if(menuOff)
+					world.render(map, shader, camera);
+
+				menu.renderMenu(shader, camera);
 			
 				gui.render();
 			

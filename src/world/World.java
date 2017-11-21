@@ -2,21 +2,30 @@ package world;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-import java.awt.image.*;
-import java.io.*;
-import java.util.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.imageio.*;
+import javax.imageio.ImageIO;
 
-import org.joml.*;
-import org.lwjgl.glfw.*;
+import org.joml.Matrix4f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.lwjgl.glfw.GLFWVidMode;
 
-import collision.*;
-import effects.*;
-import entity.*;
-import font.*;
-import io.*;
-import render.*;
+import collision.AABB;
+import effects.Explosion;
+import effects.Particle;
+import entity.Entity;
+import entity.Player;
+import entity.Sheep;
+import entity.Transform;
+import io.Window;
+import render.Camera;
+import render.Shader;
+import render.Texture;
 
 public class World {
 	private AABB[] bounding_boxes;

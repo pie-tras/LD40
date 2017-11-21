@@ -3,13 +3,14 @@ package render;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 
-import java.awt.image.*;
-import java.io.*;
-import java.nio.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
-import javax.imageio.*;
+import javax.imageio.ImageIO;
 
-import org.lwjgl.*;
+import org.lwjgl.BufferUtils;
 
 public class Texture {
 	private int id;
@@ -24,13 +25,22 @@ public class Texture {
 			height = bi.getHeight();
 			
 			int[] pixels_raw = new int[width*height];
+			System.out.println(width*height);
+			
 			pixels_raw = bi.getRGB(0, 0, width, height, null, 0, width);
 			
 			ByteBuffer pixels = BufferUtils.createByteBuffer(width * height *4);
 			
+			int value; 
+			
+			if(width<=height) {
+				value = width;
+			} else {
+				value = height;
+			}
 			for(int i = 0; i<width; i++) {
 				for(int j = 0; j< height; j++) {
-					int pixel = pixels_raw[i*width+j];
+					int pixel = pixels_raw[i*value+j];
 					pixels.put((byte)((pixel >> 16) & 0xFF));//RED
 					pixels.put((byte)((pixel >> 8) & 0xFF));//GREEN
 					pixels.put((byte)(pixel & 0xFF));//BLUE
