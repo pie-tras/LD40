@@ -2,11 +2,16 @@ package render;
 
 import static org.lwjgl.opengl.GL20.*;
 
-import java.io.*;
-import java.nio.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.FloatBuffer;
 
-import org.joml.*;
-import org.lwjgl.*;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+import org.lwjgl.BufferUtils;
 
 public class Shader {
 

@@ -25,7 +25,6 @@ public class Texture {
 			height = bi.getHeight();
 			
 			int[] pixels_raw = new int[width*height];
-			System.out.println(width*height);
 			
 			pixels_raw = bi.getRGB(0, 0, width, height, null, 0, width);
 			

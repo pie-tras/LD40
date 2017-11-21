@@ -126,10 +126,11 @@ public class Main {
 			if(can_render) {
 				glClear(GL_COLOR_BUFFER_BIT);
 				
-				if(menuOff)
+				if(menuOff) {
 					world.render(map, shader, camera);
-
-				menu.renderMenu(shader, camera);
+				} else {
+					menu.renderMenu(shader, camera);
+				}
 			
 				gui.render();
 			
