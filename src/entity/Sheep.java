@@ -1,11 +1,13 @@
 package entity;
 
+import java.lang.Math;
 import java.util.Random;
 
-import org.joml.Vector2f;
+import org.joml.*;
 
 import audio.AudioMaster;
 import audio.Source;
+import effects.*;
 import io.Window;
 import render.Animation;
 import render.Camera;
@@ -53,6 +55,8 @@ public class Sheep extends Entity{
 		source.setPosition(transform.pos.x, transform.pos.y, 2);
 		AudioMaster.sources.add(source);
 		hasSound = true;
+		Fire f = new Fire(world.getParticleShader(), transform, world, 3, new Vector3f(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)));
+		world.getParticles().add(f);
 	}
 
 	@Override
@@ -91,7 +95,7 @@ public class Sheep extends Entity{
 		
 		move(movement);
 		source.setPosition(transform.pos.x, transform.pos.y, 2);
-		float disBetween = (float)Math.pow(Math.pow(World.getPlayerX()-transform.pos.x, 2) + Math.pow(World.getPlayerY()-transform.pos.y, 2), .5);
+		float disBetween = (float) Math.pow(Math.pow(World.getPlayerX()-transform.pos.x, 2) + Math.pow(World.getPlayerY()-transform.pos.y, 2), .5);
 		if(disBetween>30) {
 			source.pause();
 		} else if(disBetween<=30 && source.isPlaying()==false) {
