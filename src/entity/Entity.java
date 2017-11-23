@@ -10,6 +10,7 @@ import assets.Assets;
 import audio.Source;
 import collision.AABB;
 import collision.Collision;
+import collision.TriggerBox;
 import io.Timer;
 import io.Window;
 import render.Animation;
@@ -26,6 +27,7 @@ public abstract class Entity {
 	private double waitTimeStart = 0;
 	
 	protected AABB bounding_box;
+	protected TriggerBox trigger_box;	
 	
 	protected Animation[] animations;
 	private int use_animation;
@@ -36,6 +38,8 @@ public abstract class Entity {
 	
 	protected int width;
 	protected int height;
+	
+	protected boolean isTriggered = false;
 	
 	protected Source source;
 	
@@ -54,7 +58,8 @@ public abstract class Entity {
 		this.transform = transform;
 		this.use_animation = 0;
 		
-		bounding_box = new AABB(new Vector2f(transform.pos.x, transform.pos.y), new Vector2f(width/16, height/16));
+		trigger_box = new TriggerBox(new Vector2f(transform.pos.x, transform.pos.y), new Vector2f(width/16, height/16));
+		bounding_box = new AABB(new Vector2f(transform.pos.x, transform.pos.y), new Vector2f(width/16, height/16), 1);
 	}
 	
 	
@@ -85,9 +90,11 @@ public abstract class Entity {
 		
 			
 		
-
+		trigger_box.getCenter().set(transform.pos.x, transform.pos.y);	
 		bounding_box.getCenter().set(transform.pos.x, transform.pos.y);	
 
+		
+		isTriggered = checkCollisionsTriggers();
 	}
 
 	
@@ -149,6 +156,46 @@ public abstract class Entity {
 		
 	}
 	
+	public boolean checkCollisionsTriggers() {
+		TriggerBox[] boxes = new TriggerBox[25]; 
+		for(int i = 0; i < 5; i++) {
+			for(int j = 0; j < 5; j++) {
+				boxes[i + j * 5] = world.getTileTriggerBox(
+							(int)(((transform.pos.x / 2) + 0.5f) - (5/2)) + i,
+							(int)(((-transform.pos.y / 2) + 0.5f) - (5/2)) + j
+						);
+			}
+		}
+		
+		TriggerBox box = null;
+		for(int i = 0; i< boxes.length; i++) {
+			if(boxes[i] != null) {
+				if(box == null) box = boxes[i];
+				
+				Vector2f length1 = box.getCenter().sub(transform.pos.x, transform.pos.y, new Vector2f());
+				Vector2f length2 = boxes[i].getCenter().sub(transform.pos.x, transform.pos.y, new Vector2f());
+				
+				if(length1.lengthSquared() > length2.lengthSquared()) {
+					box = boxes[i];
+				}
+			}
+		}
+		
+		
+		if(box != null) {
+			Collision data = trigger_box.getCollision(box);
+			if(data.isIntersecting) {
+				return true;
+			}else {
+				return false;
+			}
+			
+		}
+		
+		return false;
+		
+	}
+
 	public void render(Shader shader, Camera camera) {
 		Matrix4f target = camera.getProjection();
 		target.mul(world.getWorldMatrix());
@@ -212,8 +259,14 @@ public abstract class Entity {
 		
 		return movement;
 	}
+
 	public Source getSource() {
 		return this.source;
 	}
+	
+	public boolean isTriggered() {
+		return isTriggered;
+	}
+
 	
 }

@@ -16,6 +16,7 @@ import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWVidMode;
 
 import collision.AABB;
+import collision.TriggerBox;
 import effects.Explosion;
 import effects.Particle;
 import entity.Entity;
@@ -29,6 +30,7 @@ import render.Texture;
 
 public class World {
 	private AABB[] bounding_boxes;
+	private TriggerBox[] trigger_boxes;
 	
 	private List<Entity> entities;
 	private List<Particle> particles;
@@ -41,7 +43,7 @@ public class World {
 	
 	private Shader particleShader = new Shader("particle");
 	
-	private Texture map;
+	private Texture map, map2;
 	
 	private Matrix4f world;
 	
@@ -50,10 +52,13 @@ public class World {
 	public World(String world, Camera camera){
 		
 		map = new Texture("Map.png");
+		map2 = new Texture("Map2.png");
 		try {
 			BufferedImage bound_sheet = ImageIO.read(new File("./levels/" + world + "/bounds.png"));
 			BufferedImage entity_sheet = ImageIO.read(new File("./levels/" + world + "/entities3.png"));
-		
+			BufferedImage trigger_sheet = ImageIO.read(new File("./levels/" + world + "/triggers.png"));
+			
+			
 			width  = bound_sheet.getWidth();
 			height  = bound_sheet.getHeight();
 			
@@ -66,8 +71,10 @@ public class World {
 			
 			int[] colorTileSheet = bound_sheet.getRGB(0, 0, width, height, null, 0, width);
 			int[] colorEntitySheet = entity_sheet.getRGB(0, 0, width, height, null, 0, width);
+			int[] colorTriggerSheet = trigger_sheet.getRGB(0, 0, width, height, null, 0, width);
 			
 			bounding_boxes = new AABB[width * height];
+			trigger_boxes = new TriggerBox[width * height];
 			
 			entities = new ArrayList<Entity>();
 			particles = new ArrayList<Particle>();
@@ -79,11 +86,16 @@ public class World {
 			for(int y = 0; y < height; y++) {
 				for(int x = 0; x < width; x++) {
 					int red = (colorTileSheet[x + y * width] >> 16) & 0xFF;
+					int triggerRed = (colorTriggerSheet[x + y * width] >> 16) & 0xFF;
 					int entity_index = (colorEntitySheet[x + y * width] >> 16)& 0xFF;
 					int entity_alpha = (colorEntitySheet[x + y * width] >> 24)& 0xFF;
 					
 					if(red>0) {
-						bounding_boxes[x + y * width] = new AABB(new Vector2f(x*2, -y*2), new Vector2f(1,1));
+						bounding_boxes[x + y * width] = new AABB(new Vector2f(x*2, -y*2), new Vector2f(1,1), red);
+					}
+					
+					if(triggerRed>0) {
+						trigger_boxes[x + y * width] = new TriggerBox(new Vector2f(x*2, -y*2), new Vector2f(1,1));
 					}
 					
 					if(entity_alpha > 0){
@@ -126,6 +138,10 @@ public class World {
 	
 		for(Entity entity : entities) {
 			entity.render(shader, cam);
+		}
+		
+		if(!player.isTriggered()) {
+			renderer.renderMap(map2, shader, cam);
 		}
 		
 		for(Particle p : particles) {
@@ -193,6 +209,14 @@ public class World {
 	public AABB getTileBoundingBox(int x, int y) {
 		try {
 			return bounding_boxes[x + y * width];
+		}catch(ArrayIndexOutOfBoundsException e){
+			return null;
+		}
+	}
+	
+	public TriggerBox getTileTriggerBox(int x, int y) {
+		try {
+			return trigger_boxes[x + y * width];
 		}catch(ArrayIndexOutOfBoundsException e){
 			return null;
 		}
