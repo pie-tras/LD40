@@ -324,7 +324,7 @@ public abstract class Entity {
 	}
 
 	public boolean isStandingOnTile(float positionX, float positionY, World world) {
-		return world.isTile((int)((positionX/2)+.51f) , ((-(int)positionY + 4) / 2) - 2 + 1);
+		return world.isTile((int)((positionX/2)) , ((-(int)positionY + 4) / 2) - 2 + 1);
 	}
 	
 	public AABB getBoundingBox() {
