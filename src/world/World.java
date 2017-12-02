@@ -31,6 +31,7 @@ import render.Texture;
 public class World {
 	private AABB[] bounding_boxes;
 	private TriggerBox[] trigger_boxes;
+	private boolean[] jumpPermitted;
 	
 	private List<Entity> entities;
 	private List<Particle> particles;
@@ -73,6 +74,7 @@ public class World {
 			int[] colorEntitySheet = entity_sheet.getRGB(0, 0, width, height, null, 0, width);
 			int[] colorTriggerSheet = trigger_sheet.getRGB(0, 0, width, height, null, 0, width);
 			
+			jumpPermitted = new boolean[width * height];
 			bounding_boxes = new AABB[width * height];
 			trigger_boxes = new TriggerBox[width * height];
 			
@@ -91,7 +93,8 @@ public class World {
 					int entity_alpha = (colorEntitySheet[x + y * width] >> 24)& 0xFF;
 					
 					if(red>0) {
-						bounding_boxes[x + y * width] = new AABB(new Vector2f(x*2, -y*2), new Vector2f(1,1), red);
+						bounding_boxes[x + y * width] = new AABB(new Vector2f(x*2, -y*2), new Vector2f(1,1));
+						jumpPermitted[x + y * width] = true;
 					}
 					
 					if(triggerRed>0) {
@@ -221,6 +224,19 @@ public class World {
 			return null;
 		}
 	}
+	
+	public boolean isTile(int x, int y) {
+		try {
+			if(y==height) {
+				return true;
+			}else {
+				return jumpPermitted[x + y * width];
+			}
+		}catch(ArrayIndexOutOfBoundsException e){
+			return false;
+		}
+	}
+	
 	
 	public void kill(Entity e) {
 		entityKill.add(e);

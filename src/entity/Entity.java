@@ -26,6 +26,10 @@ public abstract class Entity {
 	private Random rand = new Random();
 	private double waitTimeStart = 0;
 	
+	protected boolean jumping;
+	
+	protected float gravity = 0;
+
 	protected AABB bounding_box;
 	protected TriggerBox trigger_box;	
 	
@@ -59,7 +63,7 @@ public abstract class Entity {
 		this.use_animation = 0;
 		
 		trigger_box = new TriggerBox(new Vector2f(transform.pos.x, transform.pos.y), new Vector2f(width/16, height/16));
-		bounding_box = new AABB(new Vector2f(transform.pos.x, transform.pos.y), new Vector2f(width/16, height/16), 1);
+		bounding_box = new AABB(new Vector2f(transform.pos.x, transform.pos.y), new Vector2f(width/16, height/16));
 	}
 	
 	
@@ -72,23 +76,39 @@ public abstract class Entity {
 	}
 	
 	public void move(Vector2f direction) {
+		
+		if(this.isStandingOnTile(transform.pos.x, transform.pos.y, world) && jumping ){
+			//jumping
+			if(gravity>-5) {
+				gravity-=1;
+			}
+		}else {
+			if(gravity<7) {
+				gravity+=.05;
+				jumping=false;
+			}
 			
-		transform.pos.add(new Vector3f(direction, 0));
-
+			//falling
+		}
+		
+		if(transform.pos.y+direction.y-gravity<-126) {
+			transform.pos.add(new Vector3f(direction, 0));
+		}else {
+			transform.pos.add(new Vector3f(direction.x, direction.y-gravity, 0));
+		}
+		
 		if(transform.pos.x+direction.x<0){
 			transform.pos.set(0, transform.pos.y, 0);
 		}
 		if(transform.pos.x+direction.x>126){
 			transform.pos.set(126, transform.pos.y, 0);
 		} 
-		if(transform.pos.y+direction.y>0){
+		if(transform.pos.y+direction.y-gravity>0){
 			transform.pos.set(transform.pos.x, 0, 0);
 		} 
-		if(transform.pos.y+direction.y<-126){
+		if(transform.pos.y+direction.y-gravity<-126){
 			transform.pos.set(transform.pos.x, -126, 0);
 		}
-		
-			
 		
 		trigger_box.getCenter().set(transform.pos.x, transform.pos.y);	
 		bounding_box.getCenter().set(transform.pos.x, transform.pos.y);	
@@ -222,6 +242,7 @@ public abstract class Entity {
 		}
 	}
 	
+	
 	protected Vector2f wander(float delta, Transform transform, int speed){
 		Vector2f movement = new Vector2f();
 
@@ -268,5 +289,8 @@ public abstract class Entity {
 		return isTriggered;
 	}
 
+	public boolean isStandingOnTile(float positionX, float positionY, World world) {
+		return world.isTile((int)((positionX + 4) / 2) - 2 , ((-(int)positionY + 4) / 2) - 2 + 1);
+	}
 	
 }

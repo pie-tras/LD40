@@ -18,7 +18,7 @@ public class Button {
 	private static Matrix4f transform = new Matrix4f();
 	
 	public Button(Vector2f position, Vector2f scale){
-		this.boundingBox = new AABB(position, scale, 1);
+		this.boundingBox = new AABB(position, scale);
 	}
 	
 	public void render(Camera camera, SpriteSheet sheet, Shader shader){

@@ -33,9 +33,11 @@ public class Player extends Entity{
 			movement.add(-10*delta, 0);
 		}
 		
-		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_W)) {
-			movement.add(0, 10*delta);
+		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_W) && this.isStandingOnTile(transform.pos.x, transform.pos.y, world)) {
+			gravity = 0;
+			jumping = true;
 		}
+		
 		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_S)) {
 			movement.add(0, -10*delta);
 		}
