@@ -32,10 +32,10 @@ public class Arrow extends Entity{
 		 }else if(velocity.x<0){
 			useAnimation(1);
 		}
-		if(projectileHit && time<10) {
+		if(projectileHit && time<50) {
 			velocity.set(0,0);
 			time++;
-		} else if(time==10) {
+		} else if(time==50) {
 			time=0;
 			projectileHit = false;
 			world.kill(this);

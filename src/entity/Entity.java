@@ -91,7 +91,7 @@ public abstract class Entity {
 		
 			if(this.isStandingOnTile(transform.pos.x, transform.pos.y, world) && jumping ){
 			//jumping
-				if(gravity>-5) {
+				if(gravity>-3) {
 					gravity-=1;
 				}
 			}else if(!this.isStandingOnTile(transform.pos.x, transform.pos.y, world)){
@@ -99,7 +99,7 @@ public abstract class Entity {
 					gravity+=.05;
 					jumping=false;
 				} else if(jumping) {
-					if(gravity>-5) {
+					if(gravity>-3) {
 						gravity-=1;
 					}
 				}
@@ -252,24 +252,26 @@ public abstract class Entity {
 	}
 
 	public void checkCollisionsEntities(Entity entity) {
-		Collision collision = bounding_box.getCollision(entity.bounding_box);
+		if(entity.bounding_box!=null) {
+			Collision collision = bounding_box.getCollision(entity.bounding_box);
 		
-		if(collision.isIntersecting) {
+			if(collision.isIntersecting) {
 			
-			collision.distance.x /= 2;
-			collision.distance.y /= 2;
+				collision.distance.x /= 2;
+				collision.distance.y /= 2;
+				
+				bounding_box.correctPosition(entity.bounding_box, collision);
+				transform.pos.set(bounding_box.getCenter().x, bounding_box.getCenter().y, 0);
 			
-			bounding_box.correctPosition(entity.bounding_box, collision);
-			transform.pos.set(bounding_box.getCenter().x, bounding_box.getCenter().y, 0);
-			
-			entity.bounding_box.correctPosition(bounding_box, collision);
-			entity.transform.pos.set(entity.bounding_box.getCenter().x, entity.bounding_box.getCenter().y, 0);
+				entity.bounding_box.correctPosition(bounding_box, collision);
+				entity.transform.pos.set(entity.bounding_box.getCenter().x, entity.bounding_box.getCenter().y, 0);
 		
-			if(isProjectile) {
-				projectileHit = true;
-			}
-			if(entity.isProjectile) {
-				entity.projectileHit = true;
+				if(isProjectile) {
+					projectileHit = true;
+				}
+				if(entity.isProjectile) {
+					entity.projectileHit = true;
+				}
 			}
 		}
 	}
@@ -322,7 +324,15 @@ public abstract class Entity {
 	}
 
 	public boolean isStandingOnTile(float positionX, float positionY, World world) {
-		return world.isTile((int)((positionX + 4) / 2) - 2 , ((-(int)positionY + 4) / 2) - 2 + 1);
+		return world.isTile((int)((positionX/2)+.51f) , ((-(int)positionY + 4) / 2) - 2 + 1);
+	}
+	
+	public AABB getBoundingBox() {
+		return bounding_box;
+	}
+	
+	public void removeBoundingBox() {
+		bounding_box=null;
 	}
 	
 }

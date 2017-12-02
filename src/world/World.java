@@ -69,7 +69,7 @@ public class World {
 			height  = bound_sheet.getHeight();
 			
 			GLFWVidMode vid = glfwGetVideoMode(glfwGetPrimaryMonitor());
-			scale=vid.width()/64;
+			scale=vid.width()/32;
 			System.out.println("Scale should be 20?   "+scale);
 			
 			this.world = new Matrix4f().setTranslation(new Vector3f(0));
@@ -249,6 +249,7 @@ public class World {
 	
 	public void kill(Entity e) {
 		e.shouldUpdate=false;
+		e.removeBoundingBox();
 		e.isAlive = false;
 	}
 	
