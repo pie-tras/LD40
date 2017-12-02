@@ -242,6 +242,8 @@ public class World {
 	
 	public void kill(Entity e) {
 		e.shouldUpdate=false;
+		if(e.hasSound)
+			e.getSource().delete();
 		e.isAlive = false;
 	}
 	
