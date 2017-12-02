@@ -29,25 +29,18 @@ public class Player extends Entity{
 	@Override
 	public void update(float delta, Window window, Camera camera) {
 		Vector2f movement = new Vector2f();
-		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_A)) {
-			movement.add(-10*delta, 0);
-		}
 		
 		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_W) && this.isStandingOnTile(transform.pos.x, transform.pos.y, world)) {
 			gravity = 0;
 			jumping = true;
 		}
-		
-		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_S)) {
-			movement.add(0, -10*delta);
+		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_A)) {
+			movement.add(-10*delta, 0);
 		}
+		
 		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_D)) {
 			movement.add(10*delta, 0);
 		}
-		if(window.getInput().isKeyPressed(GLFW.GLFW_KEY_E)) {
-			world.kill(this);
-		}
-		
 		if(window.getInput().isKeyPressed(GLFW.GLFW_KEY_SPACE)) {
 			Explosion e = new Explosion(world.getParticleShader(), transform, world, 16, new Vector3f(5, 166, 100));
 			world.getParticles().add(e);

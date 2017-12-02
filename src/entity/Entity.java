@@ -76,20 +76,29 @@ public abstract class Entity {
 	}
 	
 	public void move(Vector2f direction) {
+		if(this.isStandingOnTile(transform.pos.x, transform.pos.y, world)) {
+			gravity=0;
+		}
+		
 		
 		if(this.isStandingOnTile(transform.pos.x, transform.pos.y, world) && jumping ){
 			//jumping
 			if(gravity>-5) {
 				gravity-=1;
 			}
-		}else {
-			if(gravity<7) {
+		}else if(!this.isStandingOnTile(transform.pos.x, transform.pos.y, world)){
+			if(gravity<1) {
 				gravity+=.05;
 				jumping=false;
+			} else if(jumping) {
+				if(gravity>-5) {
+					gravity-=1;
+				}
 			}
 			
 			//falling
 		}
+		
 		
 		if(transform.pos.y+direction.y-gravity<-126) {
 			transform.pos.add(new Vector3f(direction, 0));
