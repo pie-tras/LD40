@@ -34,6 +34,7 @@ public class World {
 	private boolean[] jumpPermitted;
 	
 	private List<Entity> entities;
+	private List<Entity> entitiesAdd;
 	private List<Particle> particles;
 	
 	private List<Entity> entityKill;
@@ -79,6 +80,7 @@ public class World {
 			trigger_boxes = new TriggerBox[width * height];
 			
 			entities = new ArrayList<Entity>();
+			entitiesAdd = new ArrayList<Entity>();
 			particles = new ArrayList<Particle>();
 			
 			entityKill = new ArrayList<Entity>();
@@ -140,7 +142,8 @@ public class World {
 		renderer.renderMap(map, shader, cam);
 	
 		for(Entity entity : entities) {
-			entity.render(shader, cam);
+			if(entity.shouldUpdate)
+				entity.render(shader, cam);
 		}
 		
 		if(!player.isTriggered()) {
@@ -157,7 +160,8 @@ public class World {
 	
 	public void update(float delta, Window window, Camera camera) {
 		for(Entity entity : entities) {
-			entity.update(delta, window, camera);
+			if(entity.shouldUpdate)
+				entity.update(delta, window, camera);
 		}
 		
 		for(Particle p : particles) {
@@ -168,22 +172,20 @@ public class World {
 		
 		
 		for(int i = 0; i < entities.size(); i++) {
-			entities.get(i).checkCollisionsTiles();
-			for(int j = i+1; j< entities.size(); j++) {
-				entities.get(i).checkCollisionsEntities(entities.get(j));
+			if(entities.get(i).shouldUpdate) {
+				entities.get(i).checkCollisionsTiles();
+				for(int j = i+1; j< entities.size(); j++) {
+					entities.get(i).checkCollisionsEntities(entities.get(j));
+				}
+				entities.get(i).checkCollisionsTiles();
 			}
-			entities.get(i).checkCollisionsTiles();
 		}
 		
-		if(!entityKill.isEmpty()) {
-			for(int i = 0; i < entityKill.size(); i++) {
-				if(entityKill.get(i).hasSound) {
-					entityKill.get(i).getSource().delete();;
-				}
-				
-				entities.remove(entityKill.get(i));
+		if(!entitiesAdd.isEmpty()) {
+			for(int i = 0; i < entitiesAdd.size(); i++) {
+				entities.add(entitiesAdd.get(i));
 			}
-			entityKill.removeAll(entityKill);
+			entitiesAdd.removeAll(entitiesAdd);
 		}
 		
 		if(!player.isAlive) {
@@ -239,7 +241,7 @@ public class World {
 	
 	
 	public void kill(Entity e) {
-		entityKill.add(e);
+		e.shouldUpdate=false;
 		e.isAlive = false;
 	}
 	
@@ -267,6 +269,10 @@ public class World {
 
 	public Shader getParticleShader() {
 		return particleShader;
+	}
+	
+	public void addEntity(Entity e) {
+		entitiesAdd.add(e);
 	}
 	
 }

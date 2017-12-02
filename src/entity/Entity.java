@@ -45,10 +45,17 @@ public abstract class Entity {
 	
 	protected boolean isTriggered = false;
 	
+	public boolean shouldUpdate=true;
+	
 	protected Source source;
 	
 	public boolean isAlive = true;
+	public boolean affectedByGravity = true;
+	public boolean isProjectile = false;
 	public boolean hasSound;
+	public boolean projectileHit = false;
+	
+	public int time = 0;
 	
 	public Entity(int max_animations, Transform transform, World world, int width, int height) {
 
@@ -76,29 +83,30 @@ public abstract class Entity {
 	}
 	
 	public void move(Vector2f direction) {
-		if(this.isStandingOnTile(transform.pos.x, transform.pos.y, world)) {
-			gravity=0;
-		}
-		
-		
-		if(this.isStandingOnTile(transform.pos.x, transform.pos.y, world) && jumping ){
-			//jumping
-			if(gravity>-5) {
-				gravity-=1;
+		if(affectedByGravity) {
+			if(this.isStandingOnTile(transform.pos.x, transform.pos.y, world)) {
+				gravity=0;
 			}
-		}else if(!this.isStandingOnTile(transform.pos.x, transform.pos.y, world)){
-			if(gravity<1) {
-				gravity+=.05;
-				jumping=false;
-			} else if(jumping) {
+		
+		
+			if(this.isStandingOnTile(transform.pos.x, transform.pos.y, world) && jumping ){
+			//jumping
 				if(gravity>-5) {
 					gravity-=1;
 				}
-			}
+			}else if(!this.isStandingOnTile(transform.pos.x, transform.pos.y, world)){
+				if(gravity<1) {
+					gravity+=.05;
+					jumping=false;
+				} else if(jumping) {
+					if(gravity>-5) {
+						gravity-=1;
+					}
+				}
 			
 			//falling
+			}
 		}
-		
 		
 		if(transform.pos.y+direction.y-gravity<-126) {
 			transform.pos.add(new Vector3f(direction, 0));
@@ -108,9 +116,11 @@ public abstract class Entity {
 		
 		if(transform.pos.x+direction.x<0){
 			transform.pos.set(0, transform.pos.y, 0);
+			if(isProjectile) projectileHit=true;
 		}
 		if(transform.pos.x+direction.x>126){
 			transform.pos.set(126, transform.pos.y, 0);
+			if(isProjectile) projectileHit=true;
 		} 
 		if(transform.pos.y+direction.y-gravity>0){
 			transform.pos.set(transform.pos.x, 0, 0);
@@ -160,6 +170,9 @@ public abstract class Entity {
 			if(data.isIntersecting) {
 				bounding_box.correctPosition(box, data);
 				transform.pos.set(bounding_box.getCenter(), 0);
+				if(isProjectile) {
+					projectileHit = true;
+				}
 			}
 			
 			for(int i = 0; i< boxes.length; i++) {
@@ -179,6 +192,9 @@ public abstract class Entity {
 			if(data.isIntersecting) {
 				bounding_box.correctPosition(box, data);
 				transform.pos.set(bounding_box.getCenter(), 0);
+					if(isProjectile) {
+						projectileHit = true;
+					}
 			}
 			
 		}
@@ -248,6 +264,13 @@ public abstract class Entity {
 			
 			entity.bounding_box.correctPosition(bounding_box, collision);
 			entity.transform.pos.set(entity.bounding_box.getCenter().x, entity.bounding_box.getCenter().y, 0);
+		
+			if(isProjectile) {
+				projectileHit = true;
+			}
+			if(entity.isProjectile) {
+				entity.projectileHit = true;
+			}
 		}
 	}
 	
