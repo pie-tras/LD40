@@ -263,7 +263,11 @@ public class World {
 	
 	public AABB getTileBoundingBox(int x, int y) {
 		try {
-			return bounding_boxes[x + y * width];
+			if(x + y * width > 0) {
+				return bounding_boxes[x + y * width];
+			}else {
+				return null;
+			}
 		}catch(ArrayIndexOutOfBoundsException e){
 			e.printStackTrace();
 			return null;
