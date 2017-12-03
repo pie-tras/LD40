@@ -14,7 +14,7 @@ public class Player extends Entity{
 	public static final int ANIM_IDLER = 1;
 	public static final int ANIM_WALK = 2;
 	public static final int ANIM_SIZE = 3;
-	public final static int WIDTH=7;
+	public final static int WIDTH=16;
 	public final static	int HEIGHT=16;
 	
 	private boolean notOnFire = true;
