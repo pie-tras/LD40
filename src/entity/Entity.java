@@ -29,7 +29,8 @@ public abstract class Entity {
 	protected boolean jumping;
 	
 	protected int health = 100;
-
+	public final int MAX_HEALTH = health;
+	
 	protected float gravity = 0;
 
 	protected AABB bounding_box;
@@ -141,9 +142,19 @@ public abstract class Entity {
 	}
 
 	
+	public int getHealth() {
+		return health;
+	}
+
+
 	public abstract void update(float delta, Window window, Camera camera);
 	
 	public boolean checkDead() {
+		if(impaled == true) {
+			health -= 1;
+			impaled = false;
+		}
+		
 		if(health<=0) {
 			world.kill(this);
 			return true;

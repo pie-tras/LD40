@@ -24,6 +24,8 @@ import entity.Entity;
 import entity.Player;
 import entity.Sheep;
 import entity.Transform;
+import font.Font;
+import gui.Gui;
 import io.Window;
 import render.Camera;
 import render.Shader;
@@ -52,7 +54,8 @@ public class World {
 	
 	private Shader particleShader = new Shader("particle");
 	
-	private Texture map, map2, sky, fog;
+	private Texture map, map2, sky, fog, bar, barBase;
+	;
 	
 	private Matrix4f world;
 	
@@ -64,6 +67,8 @@ public class World {
 		map2 = new Texture("Map2.png");
 		sky = new Texture("Sky.png");
 		fog = new Texture("Fog.png");
+		bar = new Texture("bar.png"); 
+		barBase = new Texture("barBase.png");
 		
 		try {
 			BufferedImage bound_sheet = ImageIO.read(new File("./levels/" + world + "/bounds.png"));
@@ -152,7 +157,7 @@ public class World {
 
 	public Matrix4f getWorldMatrix() { return world; }
 	
-	public void render(WorldRenderer renderer, Shader shader, Camera cam) {
+	public void render(Font font, Gui gui, WorldRenderer renderer, Shader shader, Camera cam) {
 		
 		renderer.renderSky(sky, cam, new Vector3f(75, 45, 65));
 		
@@ -175,7 +180,15 @@ public class World {
 		
 		renderer.renderFog(fog, cam, new Vector4f(fogDen, fogDen/10, fogDen/10, fogDen/100), fogDen);
 		
+		gui.renderGui(barBase, new Vector2f(-300, 200), new Vector2f(110, 129), new Vector3f(70, 0, 0));
+		gui.renderGui(bar, new Vector2f(-400+player.getInsanity()*100, 220), new Vector2f(player.getInsanity()*100, 100), new Vector3f(95, 0, 0));
 		
+		font.render("Insanity: "+ ((int)(100*player.getInsanity())+ "%"), new Vector2f(-295, 300), new Vector2f(7, 7), new Vector3f(255, 0, 0));
+			
+		gui.renderGui(barBase, new Vector2f(300, 200), new Vector2f(110, 129), new Vector3f(0, 70, 0));
+		gui.renderGui(bar, new Vector2f(200+((int)(player.getHealth())), 220), new Vector2f((int)player.getHealth(), 100), new Vector3f(0, 150, 0));
+		
+		font.render("Health: "+ ((int)(player.getHealth())+ "/" + ((int)(player.MAX_HEALTH))), new Vector2f(300, 300), new Vector2f(6, 6), new Vector3f(0, 250, 0));
 	}
 	
 	public void update(float delta, Window window, Camera camera) {

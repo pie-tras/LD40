@@ -63,7 +63,7 @@ public class Player extends Entity{
 			Arrow arrow = new Arrow(transform2, world, pos, velocity);
 			world.addEntity(arrow);
 			
-			if(getInsanity()<1.5) {
+			if(getInsanity()<1) {
 				setInsanity(getInsanity() + .1f);
 			}
 		}

@@ -18,6 +18,7 @@ import io.Timer;
 import io.Window;
 import render.Camera;
 import render.Shader;
+import render.Texture;
 import world.Menu;
 import world.World;
 import world.WorldRenderer;
@@ -58,13 +59,14 @@ public class Main {
 		
 		
 		Shader shader = new Shader("shader");
+		Shader guiShader = new Shader("gui");
 		Shader fontShader = new Shader("font");
 		
 		font = new Font(fontShader);
 		
 		Assets.initAsset();
 		
-		Gui gui = new Gui(window, camera, shader);
+		Gui gui = new Gui(guiShader);
 	
 		double frame_cap = 1.0/60.0;
 		
@@ -73,8 +75,6 @@ public class Main {
 		
 		double time = Timer.getTime();
 		double unprocessed = 0;
-		
-		
 		
 		menu  = new Menu();
 		
@@ -127,13 +127,11 @@ public class Main {
 				glClear(GL_COLOR_BUFFER_BIT);
 				
 				if(menuOff) {
-					world.render(map, shader, camera);
+					world.render(font, gui, map, shader, camera);
 				} else {
 					menu.renderMenu(shader, camera);
 				}
-			
-				gui.render();
-			
+				
 				//Messages///////////////
 				
 				font.render("The Kingdom of Ancrodora!!!!!!", new Vector2f(0, 100), new Vector2f(8, 8), new Vector3f(66, 0, 0));

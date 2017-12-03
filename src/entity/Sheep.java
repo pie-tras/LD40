@@ -99,12 +99,6 @@ public class Sheep extends Entity{
 			source.continuePlaying();
 		}
 		
-		if(impaled == true) {
-			health -= 1;
-			impaled = false;
-			return;
-		}
-		
 		if(canShoot == true){
 			startTime = Timer.getTime();
 			wait = rand.nextInt(10)+1;
