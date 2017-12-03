@@ -31,7 +31,7 @@ import render.Texture;
 public class World {
 	private AABB[] bounding_boxes;
 	private TriggerBox[] trigger_boxes;
-	private boolean[] jumpPermitted;
+	private boolean[][] jumpPermitted;
 	
 	private boolean reachedMax	= false, reachedDawn = true;
 	private float redSky = 0;
@@ -79,7 +79,7 @@ public class World {
 			int[] colorEntitySheet = entity_sheet.getRGB(0, 0, width, height, null, 0, width);
 			int[] colorTriggerSheet = trigger_sheet.getRGB(0, 0, width, height, null, 0, width);
 			
-			jumpPermitted = new boolean[width * height];
+			jumpPermitted = new boolean[width][height];
 			bounding_boxes = new AABB[width * height];
 			trigger_boxes = new TriggerBox[width * height];
 			
@@ -100,7 +100,7 @@ public class World {
 					
 					if(red>0) {
 						bounding_boxes[x + y * width] = new AABB(new Vector2f(x*2, -y*2), new Vector2f(1,1));
-						jumpPermitted[x + y * width] = true;
+						jumpPermitted[x][y] = true;
 					}
 					
 					if(triggerRed>0) {
@@ -222,6 +222,7 @@ public class World {
 		try {
 			return bounding_boxes[x + y * width];
 		}catch(ArrayIndexOutOfBoundsException e){
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -239,7 +240,7 @@ public class World {
 			if(y==height) {
 				return true;
 			}else {
-				return jumpPermitted[x + y * width];
+				return jumpPermitted[x][y];
 			}
 		}catch(ArrayIndexOutOfBoundsException e){
 			return false;

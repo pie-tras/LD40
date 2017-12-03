@@ -91,16 +91,16 @@ public abstract class Entity {
 		
 			if(this.isStandingOnTile(transform.pos.x, transform.pos.y, world) && jumping ){
 			//jumping
-				if(gravity>-3) {
-					gravity-=1;
+				if(gravity>-5f) {
+					gravity-=.9f;
 				}
 			}else if(!this.isStandingOnTile(transform.pos.x, transform.pos.y, world)){
-				if(gravity<1) {
-					gravity+=.05;
+				if(gravity<1f) {
+					gravity+=.07f;
 					jumping=false;
 				} else if(jumping) {
-					if(gravity>-3) {
-						gravity-=1;
+					if(gravity>-5f) {
+						gravity-=.7f;
 					}
 				}
 			
@@ -322,10 +322,20 @@ public abstract class Entity {
 	public boolean isTriggered() {
 		return isTriggered;
 	}
+	
+	private double roundUp(double x, double f) {
+		return f * Math.ceil(x / f);
+	}
 
 	public boolean isStandingOnTile(float positionX, float positionY, World world) {
-		return world.isTile((int)((positionX/2)) , ((-(int)positionY + 4) / 2) - 2 + 1);
-	}
+		
+		int posX = (int)roundUp(positionX, 2)/2;
+		
+		int posY = -(int)roundUp(positionY, 2)/2;
+
+		return world.isTile((int)((positionX + 4) / 2) - 2 , ((-(int)positionY + 4) / 2) - 2 + 1) || world.isTile((int)posX , (int)posY+1);
+
+	}	
 	
 	public AABB getBoundingBox() {
 		return bounding_box;

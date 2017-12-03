@@ -10,10 +10,11 @@ import render.*;
 import world.*;
 
 public class Player extends Entity{
-	public static final int ANIM_IDLE = 0;
-	public static final int ANIM_WALK = 1;
-	public static final int ANIM_SIZE = 2;
-	public final static int WIDTH=16;
+	public static final int ANIM_IDLEL = 0;
+	public static final int ANIM_IDLER = 1;
+	public static final int ANIM_WALK = 2;
+	public static final int ANIM_SIZE = 3;
+	public final static int WIDTH=7;
 	public final static	int HEIGHT=16;
 	
 	private boolean notOnFire = true;
@@ -22,7 +23,8 @@ public class Player extends Entity{
 	
 	public Player(Transform transform, World world) {
 		super(ANIM_SIZE, transform, world, WIDTH, HEIGHT);
-		setAnimation(ANIM_IDLE, new Animation(2, 2, "player/idle"));
+		setAnimation(ANIM_IDLER, new Animation(2, 2, "player/idle/right"));
+		setAnimation(ANIM_IDLEL, new Animation(2, 2, "player/idle/left"));
 		setAnimation(ANIM_WALK, new Animation(3, 10, "player/walk"));
 		AudioMaster.setListenerData(transform.pos.x, transform.pos.y, 0);
 		hasSound = false;
@@ -65,7 +67,11 @@ public class Player extends Entity{
 		if(movement.x != 0 || movement.y!=0)
 			useAnimation(ANIM_WALK);
 		else
-			useAnimation(ANIM_IDLE);
+			if(isFacingLeft){
+				useAnimation(ANIM_IDLEL);
+			}else {
+				useAnimation(ANIM_IDLER);
+			}
 		
 		camera.getPosition().lerp(transform.pos.mul(-world.getScale(), new Vector3f()), 0.05f);
 	}

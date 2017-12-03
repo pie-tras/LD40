@@ -1,2 +1,11 @@
-/world/
+/assets/
+/audio/
+/collision/
+/effects/
 /entity/
+/font/
+/gui/
+/io/
+/main/
+/render/
+/world/
