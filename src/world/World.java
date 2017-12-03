@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFWVidMode;
 
 import collision.AABB;
@@ -42,13 +43,16 @@ public class World {
 	
 	private List<Entity> entityKill;
 	
+	private float fogDen;
+	private boolean clearing = false;
+	
 	private int width;
 	private int height;
 	private float scale;
 	
 	private Shader particleShader = new Shader("particle");
 	
-	private Texture map, map2, sky;
+	private Texture map, map2, sky, fog;
 	
 	private Matrix4f world;
 	
@@ -59,6 +63,8 @@ public class World {
 		map = new Texture("Map.png");
 		map2 = new Texture("Map2.png");
 		sky = new Texture("Sky.png");
+		fog = new Texture("Fog.png");
+		
 		try {
 			BufferedImage bound_sheet = ImageIO.read(new File("./levels/" + world + "/bounds.png"));
 			BufferedImage entity_sheet = ImageIO.read(new File("./levels/" + world + "/entities3.png"));
@@ -69,7 +75,7 @@ public class World {
 			height  = bound_sheet.getHeight();
 			
 			GLFWVidMode vid = glfwGetVideoMode(glfwGetPrimaryMonitor());
-			scale=vid.width()/32;
+			scale=vid.width()/64;
 			System.out.println("Scale should be 20?   "+scale);
 			
 			this.world = new Matrix4f().setTranslation(new Vector3f(0));
@@ -140,6 +146,10 @@ public class World {
 		
 	}
 	
+	public static Player getPlayer() {
+		return player;
+	}
+
 	public Matrix4f getWorldMatrix() { return world; }
 	
 	public void render(WorldRenderer renderer, Shader shader, Camera cam) {
@@ -162,6 +172,9 @@ public class World {
 				p.render(cam);
 			}
 		}
+		
+		renderer.renderFog(fog, cam, new Vector4f(fogDen, fogDen/10, fogDen/10, fogDen/100), fogDen);
+		
 		
 	}
 	
@@ -203,6 +216,23 @@ public class World {
 			glfwSetWindowShouldClose(window.getWindow(), true);
 		}
 		
+		if(fogDen<(player.getInsanity()*100) && !clearing) {
+			fogDen+=.1f;
+		}
+		
+		if(fogDen>=((player.getInsanity()*100)-1)) {
+			clearing=true;
+		}
+		
+		if(fogDen>((player.getInsanity()*100)/2) && clearing){
+			fogDen-=.1f;
+		}
+		
+		if(fogDen<=((player.getInsanity()*100)/2)) {
+			clearing=false;
+		}
+		
+		System.out.println(fogDen);
 	}
 	
 	public void correctCamera(Camera camera, Window window) {
@@ -250,6 +280,10 @@ public class World {
 	
 	public void kill(Entity e) {
 		e.shouldUpdate=false;
+		if(e.hasSound) {
+			e.getSource().delete();
+			e.hasSound = false;
+		}
 		e.removeBoundingBox();
 		e.isAlive = false;
 	}

@@ -8,12 +8,18 @@ import org.joml.*;
 import audio.AudioMaster;
 import audio.Source;
 import effects.*;
+import io.Timer;
 import io.Window;
 import render.Animation;
 import render.Camera;
 import world.World;
 
 public class Sheep extends Entity{
+	
+	private boolean canShoot = true;
+	private int wait;
+	private double startTime = 0;
+	
 	
 	private int lastMove = 0;
 	
@@ -61,17 +67,8 @@ public class Sheep extends Entity{
 
 	@Override
 	public void update(float delta, Window window, Camera camera) {
-		
+		checkDead();
 		Vector2f movement = wander(delta, transform, 2);
-		int killChance = rand.nextInt(200);
-		
-		if(movement.y>0){
-			lastMove=0;
-			useAnimation(ANIM_WALKU);
-		}else if(movement.y<0){
-			lastMove=1;
-			useAnimation(ANIM_WALKD);
-		}	
 		
 		if(movement.x>0){
 			lastMove=2;
@@ -102,9 +99,33 @@ public class Sheep extends Entity{
 			source.continuePlaying();
 		}
 		
-//		if(killChance == 0) {
-//			world.kill(this);
-//		}
+		if(impaled == true) {
+			health -= 1;
+			impaled = false;
+			return;
+		}
+		
+		if(canShoot == true){
+			startTime = Timer.getTime();
+			wait = rand.nextInt(10)+1;
+			canShoot = false;
+			Transform transform2 = new Transform();
+			Vector2f pos = new Vector2f(), velocity = new Vector2f();
+			if(world.getPlayer().getTransform().pos.x<getTransform().pos.x) {
+				pos.set(transform.pos.x-this.bounding_box.getHalfExtent().x, transform.pos.y);
+				velocity.set(-10*delta*4,0);
+			} else {
+				pos.set(transform.pos.x+this.bounding_box.getHalfExtent().x, transform.pos.y);
+				velocity.set(10*delta*4,0);
+			}
+			Arrow arrow = new Arrow(transform2, world, pos, velocity);
+			world.addEntity(arrow);
+		}
+		
+		if((int)(Timer.getTime()-startTime)==wait){
+			canShoot = true;
+		}
+		
 	}
 
 	

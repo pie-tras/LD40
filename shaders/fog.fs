@@ -2,7 +2,7 @@
 
 uniform sampler2D sampler;
 
-uniform vec3 skyColor;
+uniform vec4 fogColor;
 
 varying vec2 tex_coords;
 
@@ -10,6 +10,6 @@ void main() {
 
 	vec4 tex = texture2D(sampler, tex_coords);
 
-	gl_FragColor = vec4(tex.r*skyColor.x, tex.g*skyColor.y, tex.b*skyColor.z, tex.a);
+	gl_FragColor = vec4(tex.r*fogColor.x, tex.g*fogColor.y, tex.b*fogColor.z, tex.a*fogColor.w);
 
 }

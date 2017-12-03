@@ -17,6 +17,8 @@ public class Player extends Entity{
 	public final static int WIDTH=16;
 	public final static	int HEIGHT=16;
 	
+	private float insanity=0f; // 0 to 1
+	
 	private boolean notOnFire = true;
 	
 	private boolean isFacingLeft = false;
@@ -32,6 +34,7 @@ public class Player extends Entity{
 	
 	@Override
 	public void update(float delta, Window window, Camera camera) {
+		checkDead();
 		Vector2f movement = new Vector2f();
 		
 		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_W) && this.isStandingOnTile(transform.pos.x, transform.pos.y, world)) {
@@ -59,6 +62,10 @@ public class Player extends Entity{
 			}
 			Arrow arrow = new Arrow(transform2, world, pos, velocity);
 			world.addEntity(arrow);
+			
+			if(getInsanity()<1.5) {
+				setInsanity(getInsanity() + .1f);
+			}
 		}
 		
 		move(movement);
@@ -74,6 +81,14 @@ public class Player extends Entity{
 			}
 		
 		camera.getPosition().lerp(transform.pos.mul(-world.getScale(), new Vector3f()), 0.05f);
+	}
+
+	public float getInsanity() {
+		return insanity;
+	}
+
+	public void setInsanity(float insanity) {
+		this.insanity = insanity;
 	}
 	
 }

@@ -38,6 +38,7 @@ public class Arrow extends Entity{
 		} else if(time==50) {
 			time=0;
 			projectileHit = false;
+			bounding_box = null;
 			world.kill(this);
 		}
 	}

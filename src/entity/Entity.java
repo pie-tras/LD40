@@ -28,6 +28,8 @@ public abstract class Entity {
 	
 	protected boolean jumping;
 	
+	protected int health = 100;
+
 	protected float gravity = 0;
 
 	protected AABB bounding_box;
@@ -54,6 +56,7 @@ public abstract class Entity {
 	public boolean isProjectile = false;
 	public boolean hasSound;
 	public boolean projectileHit = false;
+	public boolean impaled = false;
 	
 	public int time = 0;
 	
@@ -83,11 +86,13 @@ public abstract class Entity {
 	}
 	
 	public void move(Vector2f direction) {
+		if(checkDead())
+			return;
+		
 		if(affectedByGravity) {
 			if(this.isStandingOnTile(transform.pos.x, transform.pos.y, world)) {
 				gravity=0;
 			}
-		
 		
 			if(this.isStandingOnTile(transform.pos.x, transform.pos.y, world) && jumping ){
 			//jumping
@@ -100,7 +105,7 @@ public abstract class Entity {
 					jumping=false;
 				} else if(jumping) {
 					if(gravity>-5f) {
-						gravity-=.7f;
+						gravity-=.9f;
 					}
 				}
 			
@@ -131,14 +136,20 @@ public abstract class Entity {
 		
 		trigger_box.getCenter().set(transform.pos.x, transform.pos.y);	
 		bounding_box.getCenter().set(transform.pos.x, transform.pos.y);	
-
 		
 		isTriggered = checkCollisionsTriggers();
 	}
 
 	
 	public abstract void update(float delta, Window window, Camera camera);
-		
+	
+	public boolean checkDead() {
+		if(health<=0) {
+			world.kill(this);
+			return true;
+		}
+		return false;
+	}
 	
 	public void checkCollisionsTiles() {
 		AABB[] boxes = new AABB[25]; 
@@ -271,6 +282,7 @@ public abstract class Entity {
 				}
 				if(entity.isProjectile) {
 					entity.projectileHit = true;
+					impaled = true;
 				}
 			}
 		}
@@ -282,7 +294,7 @@ public abstract class Entity {
 
 		if(canChangeDir == true){
 			waitTimeStart = Timer.getTime();
-			Compass = rand.nextInt(10);
+			Compass = rand.nextInt(3);
 			Dis = rand.nextInt(10)+1;
 			canChangeDir = false;
 		}
@@ -291,24 +303,10 @@ public abstract class Entity {
 			canChangeDir = true;
 		}
 		
-		if(Compass == 0){
-			movement.add(0, speed*delta);
-		}else if(Compass == 1){
-			movement.add(speed*delta, speed*delta);
-		}else if(Compass == 2){
+		if(Compass==0) {
 			movement.add(speed*delta, 0);
-		}else if(Compass == 3){
-			movement.add(speed*delta, -speed*delta);
-		}else if(Compass == 4){
-			movement.add(0, -speed*delta);
-		}else if(Compass == 5){
-			movement.add(-speed*delta, -speed*delta);
-		}else if(Compass == 6){
+		}else if(Compass==1){
 			movement.add(-speed*delta, 0);
-		}else if(Compass == 7){
-			movement.add(-speed*delta, speed*delta);
-		}else{
-	
 		}
 		
 		
@@ -344,5 +342,11 @@ public abstract class Entity {
 	public void removeBoundingBox() {
 		bounding_box=null;
 	}
+	
+
+	public Transform getTransform() {
+		return transform;
+	}
+
 	
 }
