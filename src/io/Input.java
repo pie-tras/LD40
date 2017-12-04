@@ -2,6 +2,11 @@ package io;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import java.nio.DoubleBuffer;
+
+import org.joml.Vector2f;
+import org.lwjgl.glfw.GLFW;
+
 public class Input {
 	private long window;
 	
@@ -28,6 +33,16 @@ public class Input {
 	
 	public boolean isMouseButtonDown(int button){
 		return glfwGetMouseButton(window, button) == 1;
+	}
+	
+	public Vector2f getMousePos() {
+		double[] posx = new double[] {0};
+		double[] posy = new double[] {0};
+		DoubleBuffer.wrap(posx);
+		GLFW.glfwGetCursorPos(window, posx, posy);
+		double x = posx[0];
+		double y = posy[0];
+		return new Vector2f((float)x, (float)y);
 	}
 	
 	public void update() {

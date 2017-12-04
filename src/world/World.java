@@ -86,7 +86,6 @@ public class World {
 			
 			GLFWVidMode vid = glfwGetVideoMode(glfwGetPrimaryMonitor());
 			scale=vid.width()/64;
-			System.out.println("Scale should be 20?   "+scale);
 			
 			this.world = new Matrix4f().setTranslation(new Vector3f(0));
 			this.world.scale(scale);
@@ -255,7 +254,7 @@ public class World {
 			coolDown = ((int) (100-(player.getInsanity()*100))/10);
 		}
 		
-		System.out.println(coolDown);
+		
 		
 		for(Entity entity : entities) {
 	
@@ -325,7 +324,6 @@ public class World {
 			clearing=false;
 		}
 		
-		System.out.println(fogDen);
 	}
 	
 	public void correctCamera(Camera camera, Window window) {

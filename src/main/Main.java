@@ -43,7 +43,7 @@ public class Main {
 		}
 		
 		Window window = new Window();
-		window.createWindow("Swarm");
+		window.createWindow("Forest of Insanity");
 		
 		GL.createCapabilities();
 		
@@ -118,9 +118,9 @@ public class Main {
 				window.update();
 				if(frame_time>=1.0) {
 					frame_time = 0;
-					System.out.println("FPS: " + frames);
 					frames = 0;
 				}
+				System.out.println(window.getInput().getMousePos());
 			}
 			
 			if(can_render) {
