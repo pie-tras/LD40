@@ -1,14 +1,11 @@
 package audio;
 
-import org.lwjgl.openal.AL;
-import org.lwjgl.openal.AL10;
-import org.lwjgl.openal.ALC;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.lwjgl.openal.AL10.alDeleteBuffers;
+import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.openal.ALC10.*;
+
+import java.util.*;
+
+import org.lwjgl.openal.*;
 
 public class AudioMaster
 {

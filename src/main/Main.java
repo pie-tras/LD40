@@ -3,24 +3,16 @@ package main;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
-import org.joml.Vector2f;
-import org.joml.Vector3f;
-import org.lwjgl.openal.AL10;
-import org.lwjgl.openal.AL11;
-import org.lwjgl.opengl.GL;
+import org.lwjgl.openal.*;
+import org.lwjgl.opengl.*;
 
-import assets.Assets;
-import audio.AudioMaster;
-import audio.Source;
-import font.Font;
-import gui.Gui;
-import io.Timer;
-import io.Window;
-import render.Camera;
-import render.Shader;
-import world.Menu;
-import world.World;
-import world.WorldRenderer;
+import assets.*;
+import audio.*;
+import font.*;
+import gui.*;
+import io.*;
+import render.*;
+import world.*;
 
 public class Main {
 	

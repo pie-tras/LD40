@@ -164,8 +164,6 @@ public class World {
 	
 	public void render(Font font, Gui gui, WorldRenderer renderer, Shader shader, Camera cam) {
 		
-		if(player.isAlive) {
-		
 		renderer.renderSky(sky, cam, new Vector3f(75, 45, 65));
 		
 		renderer.renderMap(map, shader, cam);
@@ -173,7 +171,7 @@ public class World {
 		for(Entity entity : entities) {
 			if(entity.shouldUpdate) {	
 				if(entity.isShadow()) {
-					entity.renderShadow(cam, new Vector4f(100, 105, 10, fogDen/100));
+					entity.renderShadow(cam, new Vector4f(170, 0, 00, fogDen/100));
 				}else {	
 					entity.render(shader, cam);
 				}
@@ -204,21 +202,17 @@ public class World {
 			
 		font.render("Time Survived: " + (int)timeSurvived + " seconds", new Vector2f(0, 200), new Vector2f(10, 10), new Vector3f(255, 255, 255));
 		
-		}else{
+		if(!player.isAlive) {
 			gui.renderGui(dieScreen, new Vector2f(0, 0), new Vector2f(500, 500), new Vector3f(159, 133, 121));
 			font.render("YOU HAVE PERISHED!", new Vector2f(0, 300), new Vector2f(16, 16), new Vector3f(195, 0, 0));
 			
-			font.render("Insanity: "+ ((int)(100*player.getInsanity())+ "%"), new Vector2f(0, 200), new Vector2f(10, 10), new Vector3f(255, 255, 255));
-	
-			font.render("Time Survived: " + (int)timeSurvived + " seconds", new Vector2f(0, 100), new Vector2f(10, 10), new Vector3f(255, 255, 255));
+			font.render("Time Survived: " + (int)timeSurvived + " seconds", new Vector2f(0, 100), new Vector2f(16, 16), new Vector3f(255, 255, 255));
 		
-			int totalPoints = (((int)timeSurvived)-((int)(100*player.getInsanity())/10));
-			
-			font.render("Total Score: " + totalPoints, new Vector2f(0, 0), new Vector2f(10, 10), new Vector3f(255, 255, 255));
-			
+			int totalPoints = (((int)timeSurvived));
+	
 			String comment = "";
 			
-			if(totalPoints<0) {
+			if(totalPoints>0 && totalPoints<=10) {
 				comment = "\"HOW DID YOU FAIL??? THIS IS EASY!!!\"";
 			}else if(totalPoints>10 && totalPoints<50) {
 				comment = "\"wow so amazing. (Sarcasm)\"";
