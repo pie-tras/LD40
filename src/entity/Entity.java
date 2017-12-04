@@ -1,17 +1,15 @@
 package entity;
 
-import java.util.Random;
-
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import assets.Assets;
 import audio.Source;
 import collision.AABB;
 import collision.Collision;
 import collision.TriggerBox;
-import io.Timer;
 import io.Window;
 import render.Animation;
 import render.Camera;
@@ -20,12 +18,6 @@ import world.World;
 
 public abstract class Entity {
 	
-	private boolean canChangeDir = true;
-	private int Compass;
-	private int Dis;
-	private Random rand = new Random();
-	private double waitTimeStart = 0;
-	
 	protected boolean jumping;
 	
 	protected int health = 100;
@@ -33,6 +25,8 @@ public abstract class Entity {
 	
 	protected float gravity = 0;
 
+	private Shader shadowShader = new Shader("fog");
+	
 	protected AABB bounding_box;
 	protected TriggerBox trigger_box;	
 	
@@ -43,6 +37,8 @@ public abstract class Entity {
 	
 	protected World world;
 	
+	protected boolean isFacingLeft = false;
+	
 	protected int width;
 	protected int height;
 	
@@ -52,13 +48,14 @@ public abstract class Entity {
 	
 	protected Source source;
 	
+	protected boolean runLeft = true;
+	
 	public boolean isAlive = true;
 	public boolean affectedByGravity = true;
-	public boolean isProjectile = false;
 	public boolean hasSound;
-	public boolean projectileHit = false;
-	public boolean impaled = false;
 	
+	protected boolean isShadow=false;
+
 	public int time = 0;
 	
 	public Entity(int max_animations, Transform transform, World world, int width, int height) {
@@ -91,27 +88,29 @@ public abstract class Entity {
 			return;
 		
 		if(affectedByGravity) {
+			
 			if(this.isStandingOnTile(transform.pos.x, transform.pos.y, world)) {
 				gravity=0;
 			}
 		
 			if(this.isStandingOnTile(transform.pos.x, transform.pos.y, world) && jumping ){
 			//jumping
-				if(gravity>-5f) {
-					gravity-=.9f;
+				if(gravity>-7f) {
+					gravity-=1.2f;
 				}
 			}else if(!this.isStandingOnTile(transform.pos.x, transform.pos.y, world)){
 				if(gravity<1f) {
 					gravity+=.07f;
 					jumping=false;
 				} else if(jumping) {
-					if(gravity>-5f) {
-						gravity-=.9f;
+					if(gravity>-7f) {
+						gravity-=1.2f;
 					}
 				}
 			
-			//falling
+				//falling
 			}
+			
 		}
 		
 		if(transform.pos.y+direction.y-gravity<-126) {
@@ -122,11 +121,9 @@ public abstract class Entity {
 		
 		if(transform.pos.x+direction.x<0){
 			transform.pos.set(0, transform.pos.y, 0);
-			if(isProjectile) projectileHit=true;
 		}
 		if(transform.pos.x+direction.x>126){
 			transform.pos.set(126, transform.pos.y, 0);
-			if(isProjectile) projectileHit=true;
 		} 
 		if(transform.pos.y+direction.y-gravity>0){
 			transform.pos.set(transform.pos.x, 0, 0);
@@ -137,7 +134,6 @@ public abstract class Entity {
 		
 		trigger_box.getCenter().set(transform.pos.x, transform.pos.y);	
 		bounding_box.getCenter().set(transform.pos.x, transform.pos.y);	
-		
 		isTriggered = checkCollisionsTriggers();
 	}
 
@@ -150,11 +146,6 @@ public abstract class Entity {
 	public abstract void update(float delta, Window window, Camera camera);
 	
 	public boolean checkDead() {
-		if(impaled == true) {
-			health -= 1;
-			impaled = false;
-		}
-		
 		if(health<=0) {
 			world.kill(this);
 			return true;
@@ -192,9 +183,6 @@ public abstract class Entity {
 			if(data.isIntersecting) {
 				bounding_box.correctPosition(box, data);
 				transform.pos.set(bounding_box.getCenter(), 0);
-				if(isProjectile) {
-					projectileHit = true;
-				}
 			}
 			
 			for(int i = 0; i< boxes.length; i++) {
@@ -214,9 +202,6 @@ public abstract class Entity {
 			if(data.isIntersecting) {
 				bounding_box.correctPosition(box, data);
 				transform.pos.set(bounding_box.getCenter(), 0);
-					if(isProjectile) {
-						projectileHit = true;
-					}
 			}
 			
 		}
@@ -272,8 +257,19 @@ public abstract class Entity {
 		animations[use_animation].bind(0);
 		Assets.getModel().render();
 	}
+	
+	public void renderShadow(Camera camera, Vector4f color) {
+		Matrix4f target = camera.getProjection();
+		target.mul(world.getWorldMatrix());
+		shadowShader.bind();
+		shadowShader.setUniform("sampler", 0);
+		shadowShader.setUniform("fogColor", new Vector4f(color.x/255, color.y/255, color.z/255, color.w));
+		shadowShader.setUniform("projection", transform.getProjection(target));
+		animations[use_animation].bind(0);
+		Assets.getModel().render();
+	}
 
-	public void checkCollisionsEntities(Entity entity) {
+	public boolean checkCollisionsEntities(Entity entity) {
 		if(entity.bounding_box!=null) {
 			Collision collision = bounding_box.getCollision(entity.bounding_box);
 		
@@ -288,42 +284,13 @@ public abstract class Entity {
 				entity.bounding_box.correctPosition(bounding_box, collision);
 				entity.transform.pos.set(entity.bounding_box.getCenter().x, entity.bounding_box.getCenter().y, 0);
 		
-				if(isProjectile) {
-					projectileHit = true;
-				}
-				if(entity.isProjectile) {
-					entity.projectileHit = true;
-					impaled = true;
-				}
+				return true;
 			}
 		}
+		
+		return false;
 	}
 	
-	
-	protected Vector2f wander(float delta, Transform transform, int speed){
-		Vector2f movement = new Vector2f();
-
-		if(canChangeDir == true){
-			waitTimeStart = Timer.getTime();
-			Compass = rand.nextInt(3);
-			Dis = rand.nextInt(10)+1;
-			canChangeDir = false;
-		}
-		
-		if((int)(Timer.getTime()-waitTimeStart)==Dis){
-			canChangeDir = true;
-		}
-		
-		if(Compass==0) {
-			movement.add(speed*delta, 0);
-		}else if(Compass==1){
-			movement.add(-speed*delta, 0);
-		}
-		
-		
-		return movement;
-	}
-
 	public Source getSource() {
 		return this.source;
 	}
@@ -346,6 +313,46 @@ public abstract class Entity {
 
 	}	
 	
+	public boolean isTileLeft(float positionX, float positionY, World world) {
+		
+		int posX = (int)roundUp(positionX, 2)/2;
+		
+		int posY = -(int)roundUp(positionY, 2)/2;
+
+		return world.isTile(((int)((positionX + 4) / 2) - 2)-1 , ((-(int)positionY + 4) / 2) - 2) || world.isTile((int)posX-1 , (int)posY);
+
+	}	
+	
+	public boolean isTileRight(float positionX, float positionY, World world) {
+		
+		int posX = (int)roundUp(positionX, 2)/2;
+		
+		int posY = -(int)roundUp(positionY, 2)/2;
+
+		return world.isTile(((int)((positionX + 4) / 2) - 2)+1 , ((-(int)positionY + 4) / 2) - 2) || world.isTile((int)posX+1 , (int)posY);
+
+	}	
+	
+	public boolean isEdgeTileLeft(float positionX, float positionY, World world) {
+		
+		int posX = (int)roundUp(positionX, 2)/2;
+		
+		int posY = -(int)roundUp(positionY, 2)/2;
+
+		return !(world.isTile(((int)((positionX + 4) / 2) - 2)-1 , ((-(int)positionY + 4) / 2) - 2 + 1) || world.isTile((int)posX-1 , (int)posY+1));
+
+	}	
+	
+	public boolean isEdgeTileRight(float positionX, float positionY, World world) {
+		
+		int posX = (int)roundUp(positionX, 2)/2;
+		
+		int posY = -(int)roundUp(positionY, 2)/2;
+
+		return !(world.isTile(((int)((positionX + 4) / 2) - 2)+1 , ((-(int)positionY + 4) / 2) - 2 + 1) || world.isTile((int)posX+1 , (int)posY+1));
+
+	}	
+	
 	public AABB getBoundingBox() {
 		return bounding_box;
 	}
@@ -358,6 +365,11 @@ public abstract class Entity {
 	public Transform getTransform() {
 		return transform;
 	}
+	
+	public boolean isShadow() {
+		return isShadow;
+	}
+
 
 	
 }

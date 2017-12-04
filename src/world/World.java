@@ -1,12 +1,14 @@
 package world;
 
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
+import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
@@ -18,14 +20,14 @@ import org.lwjgl.glfw.GLFWVidMode;
 
 import collision.AABB;
 import collision.TriggerBox;
-import effects.Explosion;
 import effects.Particle;
 import entity.Entity;
 import entity.Player;
-import entity.Sheep;
+import entity.ShadowPlayer;
 import entity.Transform;
 import font.Font;
 import gui.Gui;
+import io.Timer;
 import io.Window;
 import render.Camera;
 import render.Shader;
@@ -36,14 +38,14 @@ public class World {
 	private TriggerBox[] trigger_boxes;
 	private boolean[][] jumpPermitted;
 	
-	private boolean reachedMax	= false, reachedDawn = true;
-	private float redSky = 0;
-	
 	private List<Entity> entities;
 	private List<Entity> entitiesAdd;
 	private List<Particle> particles;
 	
-	private List<Entity> entityKill;
+	//private List<Entity> entityKill;
+	
+	private double spawnTime = 0, timeSurvived = 0, tempDisable = -100;
+	private boolean disabled = false;
 	
 	private float fogDen;
 	private boolean clearing = false;
@@ -55,7 +57,8 @@ public class World {
 	private Shader particleShader = new Shader("particle");
 	
 	private Texture map, map2, sky, fog, bar, barBase;
-	;
+	
+	private int coolDown;
 	
 	private Matrix4f world;
 	
@@ -72,7 +75,7 @@ public class World {
 		
 		try {
 			BufferedImage bound_sheet = ImageIO.read(new File("./levels/" + world + "/bounds.png"));
-			BufferedImage entity_sheet = ImageIO.read(new File("./levels/" + world + "/entities3.png"));
+			BufferedImage entity_sheet = ImageIO.read(new File("./levels/" + world + "/entities.png"));
 			BufferedImage trigger_sheet = ImageIO.read(new File("./levels/" + world + "/triggers.png"));
 			
 			
@@ -98,7 +101,7 @@ public class World {
 			entitiesAdd = new ArrayList<Entity>();
 			particles = new ArrayList<Particle>();
 			
-			entityKill = new ArrayList<Entity>();
+			//entityKill = new ArrayList<Entity>();
 			
 			Transform transform;
 			
@@ -126,25 +129,26 @@ public class World {
 						case 1:
 							player = new Player(transform, this);
 							entities.add(player);
+							spawnTime = Timer.getTime();
 							camera.getPosition().set(transform.pos.mul(-scale, new Vector3f()));
-							break;
-						case 2:
-							Sheep sheep = new Sheep(transform, this, "MistyMoor.wav");
-							entities.add(sheep);
-							break;
-						case 3:
-							Explosion e = new Explosion(particleShader, transform, this, 5, new Vector3f(155, 66, 100));
-							particles.add(e);
 							break;
 						default:
 							
 							break;
 						}
 					}
-					
 				}
 			}
 			
+			for(int i = 0; i<50; i++) {
+				transform = new Transform();
+				transform.pos.x = 0;
+				transform.pos.y = 0;
+				ShadowPlayer sp = new ShadowPlayer(transform, this);
+				sp.shouldUpdate = false;
+				entities.add(sp);
+			}	
+		
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -164,8 +168,13 @@ public class World {
 		renderer.renderMap(map, shader, cam);
 	
 		for(Entity entity : entities) {
-			if(entity.shouldUpdate)
-				entity.render(shader, cam);
+			if(entity.shouldUpdate) {	
+				if(entity.isShadow()) {
+					entity.renderShadow(cam, new Vector4f(100, 105, 10, fogDen/100));
+				}else {	
+					entity.render(shader, cam);
+				}
+			}
 		}
 		
 		if(!player.isTriggered()) {
@@ -189,10 +198,46 @@ public class World {
 		gui.renderGui(bar, new Vector2f(200+((int)(player.getHealth())), 220), new Vector2f((int)player.getHealth(), 100), new Vector3f(0, 150, 0));
 		
 		font.render("Health: "+ ((int)(player.getHealth())+ "/" + ((int)(player.MAX_HEALTH))), new Vector2f(300, 300), new Vector2f(6, 6), new Vector3f(0, 250, 0));
+		
+		font.render("Time Survived: " + (int)timeSurvived + " seconds.", new Vector2f(0, 200), new Vector2f(10, 10), new Vector3f(255, 255, 255));
 	}
 	
 	public void update(float delta, Window window, Camera camera) {
+		
+		timeSurvived = (Timer.getTime()-spawnTime);
+		
+		if(((int) (100-(player.getInsanity()*100))/10)<=0) {
+			coolDown=1;
+		}else{
+			coolDown = ((int) (100-(player.getInsanity()*100))/10);
+		}
+		
+		System.out.println(coolDown);
+		
 		for(Entity entity : entities) {
+	
+			if(Timer.getTime()-tempDisable>=coolDown){
+				disabled=false;
+			}
+				
+			if(!disabled){
+					
+				if(entity.isShadow() && !entity.shouldUpdate) {
+					entity.transform.pos = new Vector3f(getPlayerX(), getPlayerY()+15, 1);
+					entity.shouldUpdate = true; 
+					tempDisable = Timer.getTime();
+					disabled = true;
+				}
+				
+				if(entity.isShadow() && entity.shouldUpdate && player.isTriggered()) {
+					entity.transform.pos = new Vector3f(getPlayerX(), getPlayerY()+15, 1);
+					tempDisable = Timer.getTime();
+					disabled = true;
+				}
+				
+			}
+			
+			
 			if(entity.shouldUpdate)
 				entity.update(delta, window, camera);
 		}
@@ -222,26 +267,22 @@ public class World {
 		}
 		
 		if(!player.isAlive) {
-			System.out.println(" ");
-			System.out.println("---------");
-			System.out.println("YOU DIED!");
-			System.out.println("---------");
-			glfwSetWindowShouldClose(window.getWindow(), true);
+			//TODO respawn
 		}
 		
 		if(fogDen<(player.getInsanity()*100) && !clearing) {
-			fogDen+=.1f;
+			fogDen+=.5f;
 		}
 		
 		if(fogDen>=((player.getInsanity()*100)-1)) {
 			clearing=true;
 		}
 		
-		if(fogDen>((player.getInsanity()*100)/2) && clearing){
-			fogDen-=.1f;
+		if(fogDen>0 && clearing){
+			fogDen-=.5f;
 		}
 		
-		if(fogDen<=((player.getInsanity()*100)/2)) {
+		if(fogDen<=0) {
 			clearing=false;
 		}
 		
@@ -263,7 +304,7 @@ public class World {
 	
 	public AABB getTileBoundingBox(int x, int y) {
 		try {
-			if(x + y * width > 0) {
+			if(x + y * width<bounding_boxes.length && x + y * width > 0) {
 				return bounding_boxes[x + y * width];
 			}else {
 				return null;
@@ -334,5 +375,10 @@ public class World {
 	public void addEntity(Entity e) {
 		entitiesAdd.add(e);
 	}
+	
+	public double getSurviveTime() {
+		return timeSurvived;
+	}
+
 	
 }

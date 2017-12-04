@@ -1,7 +1,6 @@
 package entity;
 
 import org.joml.Vector2f;
-import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
 import audio.AudioMaster;
@@ -10,7 +9,7 @@ import render.Animation;
 import render.Camera;
 import world.World;
 
-public class Player extends Entity{
+public class ShadowPlayer extends Entity{
 	public static final int ANIM_IDLEL = 0;
 	public static final int ANIM_IDLER = 1;
 	public static final int ANIM_WALKL = 2;
@@ -21,9 +20,9 @@ public class Player extends Entity{
 	public final static int WIDTH=16;
 	public final static	int HEIGHT=16;
 	
-	private float insanity=0f; // 0 to 1
-
-	public Player(Transform transform, World world) {
+	private Player player;
+	
+	public ShadowPlayer(Transform transform, World world) {
 		super(ANIM_SIZE, transform, world, WIDTH, HEIGHT);
 		setAnimation(ANIM_IDLER, new Animation(2, 2, "player/idle/right"));
 		setAnimation(ANIM_IDLEL, new Animation(2, 2, "player/idle/left"));
@@ -33,25 +32,41 @@ public class Player extends Entity{
 		setAnimation(ANIM_JUMPR, new Animation(1, 2, "player/jump/right"));
 		AudioMaster.setListenerData(transform.pos.x, transform.pos.y, 0);
 		hasSound = false;
+		isShadow = true;
 	}
 	
 	@Override
 	public void update(float delta, Window window, Camera camera) {
+		this.player = world.getPlayer();
 		checkDead();
 		Vector2f movement = new Vector2f();
 		
-		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_W) && this.isStandingOnTile(transform.pos.x, transform.pos.y, world)) {
+		if(checkCollisionsEntities(player)) {
+			if(player.getInsanity()<1) {
+				player.setInsanity(player.getInsanity()+.015f);
+			}
+			player.health -= .01f;
+		}
+		
+		if(this.isStandingOnTile(transform.pos.x, transform.pos.y, world)) {
 			gravity = 0;
 			jumping = true;
 		}
-		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_A)) {
+		if(world.getPlayerX()<this.transform.pos.x) {
 			isFacingLeft=true;
-			movement.add(-15*delta, 0);
+			movement.add(-5*delta, 0);
 		}
 		
-		if(window.getInput().isKeyDown(GLFW.GLFW_KEY_D)) {
+		if(world.getPlayerX()>this.transform.pos.x) {
 			isFacingLeft=false;
-			movement.add(15*delta, 0);
+			movement.add(5*delta, 0);
+		}
+		
+		
+		if(movement.x<0) {
+			isFacingLeft=true;
+		}else if(movement.y>0) {
+			isFacingLeft=false;
 		}
 		
 		move(movement);
@@ -79,16 +94,5 @@ public class Player extends Entity{
 				}
 			}
 		}
-		
-		camera.getPosition().lerp(transform.pos.mul(-world.getScale(), new Vector3f()), 0.05f);
 	}
-
-	public float getInsanity() {
-		return insanity;
-	}
-
-	public void setInsanity(float insanity) {
-		this.insanity = insanity;
-	}
-	
 }

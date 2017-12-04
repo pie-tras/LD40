@@ -18,13 +18,13 @@ import io.Timer;
 import io.Window;
 import render.Camera;
 import render.Shader;
-import render.Texture;
 import world.Menu;
 import world.World;
 import world.WorldRenderer;
 
 public class Main {
 	
+	@SuppressWarnings("unused")
 	private float scale;
 	
 	private Font font;
@@ -101,7 +101,7 @@ public class Main {
  				}
 				if(window.getInput().isKeyPressed(GLFW_KEY_Q) && !menuOff) {
 
-					world = new World("testLevel", camera);
+					world = new World("level", camera);
 					
 					map = new WorldRenderer(world);
 					menuOff=true;
@@ -131,13 +131,6 @@ public class Main {
 				} else {
 					menu.renderMenu(shader, camera);
 				}
-				
-				//Messages///////////////
-				
-				font.render("The Kingdom of Ancrodora!!!!!!", new Vector2f(0, 100), new Vector2f(8, 8), new Vector3f(66, 0, 0));
-				
-				///////////////
-				
 				
 				window.swapBuffers();
 				frames++;

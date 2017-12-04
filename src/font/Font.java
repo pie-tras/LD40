@@ -1,19 +1,17 @@
 package font;
 
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
+import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
 
-import java.util.*;
+import org.joml.Matrix4f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.lwjgl.glfw.GLFWVidMode;
 
-import org.joml.*;
-import org.lwjgl.glfw.*;
-
-import assets.*;
-import audio.*;
-import collision.*;
-import entity.*;
-import io.*;
-import render.*;
-import world.*;
+import assets.Assets;
+import render.Camera;
+import render.Shader;
+import render.Texture;
 
 public class Font {
 	
