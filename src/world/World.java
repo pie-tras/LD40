@@ -16,6 +16,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
 
 import collision.AABB;
@@ -56,7 +57,7 @@ public class World {
 	
 	private Shader particleShader = new Shader("particle");
 	
-	private Texture map, map2, sky, fog, bar, barBase;
+	private Texture map, map2, sky, fog, bar, barBase, dieScreen;
 	
 	private int coolDown;
 	
@@ -72,6 +73,7 @@ public class World {
 		fog = new Texture("Fog.png");
 		bar = new Texture("bar.png"); 
 		barBase = new Texture("barBase.png");
+		dieScreen = new Texture("gameOver.png");
 		
 		try {
 			BufferedImage bound_sheet = ImageIO.read(new File("./levels/" + world + "/bounds.png"));
@@ -140,7 +142,7 @@ public class World {
 				}
 			}
 			
-			for(int i = 0; i<50; i++) {
+			for(int i = 0; i<10; i++) {
 				transform = new Transform();
 				transform.pos.x = 0;
 				transform.pos.y = 0;
@@ -162,6 +164,8 @@ public class World {
 	public Matrix4f getWorldMatrix() { return world; }
 	
 	public void render(Font font, Gui gui, WorldRenderer renderer, Shader shader, Camera cam) {
+		
+		if(player.isAlive) {
 		
 		renderer.renderSky(sky, cam, new Vector3f(75, 45, 65));
 		
@@ -191,20 +195,59 @@ public class World {
 		
 		gui.renderGui(barBase, new Vector2f(-300, 200), new Vector2f(110, 129), new Vector3f(70, 0, 0));
 		gui.renderGui(bar, new Vector2f(-400+player.getInsanity()*100, 220), new Vector2f(player.getInsanity()*100, 100), new Vector3f(95, 0, 0));
-		
-		font.render("Insanity: "+ ((int)(100*player.getInsanity())+ "%"), new Vector2f(-295, 300), new Vector2f(7, 7), new Vector3f(255, 0, 0));
 			
+		font.render("Insanity: "+ ((int)(100*player.getInsanity())+ "%"), new Vector2f(-295, 300), new Vector2f(7, 7), new Vector3f(255, 0, 0));
+				
 		gui.renderGui(barBase, new Vector2f(300, 200), new Vector2f(110, 129), new Vector3f(0, 70, 0));
 		gui.renderGui(bar, new Vector2f(200+((int)(player.getHealth())), 220), new Vector2f((int)player.getHealth(), 100), new Vector3f(0, 150, 0));
-		
+			
 		font.render("Health: "+ ((int)(player.getHealth())+ "/" + ((int)(player.MAX_HEALTH))), new Vector2f(300, 300), new Vector2f(6, 6), new Vector3f(0, 250, 0));
+			
+		font.render("Time Survived: " + (int)timeSurvived + " seconds", new Vector2f(0, 200), new Vector2f(10, 10), new Vector3f(255, 255, 255));
 		
-		font.render("Time Survived: " + (int)timeSurvived + " seconds.", new Vector2f(0, 200), new Vector2f(10, 10), new Vector3f(255, 255, 255));
+		}else{
+			gui.renderGui(dieScreen, new Vector2f(0, 0), new Vector2f(500, 500), new Vector3f(159, 133, 121));
+			font.render("YOU HAVE PERISHED!", new Vector2f(0, 300), new Vector2f(16, 16), new Vector3f(195, 0, 0));
+			
+			font.render("Insanity: "+ ((int)(100*player.getInsanity())+ "%"), new Vector2f(0, 200), new Vector2f(10, 10), new Vector3f(255, 255, 255));
+	
+			font.render("Time Survived: " + (int)timeSurvived + " seconds", new Vector2f(0, 100), new Vector2f(10, 10), new Vector3f(255, 255, 255));
+		
+			int totalPoints = (((int)timeSurvived)-((int)(100*player.getInsanity())/10));
+			
+			font.render("Total Score: " + totalPoints, new Vector2f(0, 0), new Vector2f(10, 10), new Vector3f(255, 255, 255));
+			
+			String comment = "";
+			
+			if(totalPoints<0) {
+				comment = "\"HOW DID YOU FAIL??? THIS IS EASY!!!\"";
+			}else if(totalPoints>10 && totalPoints<50) {
+				comment = "\"wow so amazing. (Sarcasm)\"";
+			}else{
+				comment = "\"Mediocre, I could do better\"";
+			}
+			
+			font.render(comment, new Vector2f(0, -100), new Vector2f(8, 8), new Vector3f(0, 100, 205));
+			
+			font.render("--Press Esc to quit--     --Press Enter to restart-- ", new Vector2f(0, -200), new Vector2f(8, 8), new Vector3f(0, 205, 205));
+		}
 	}
 	
 	public void update(float delta, Window window, Camera camera) {
 		
-		timeSurvived = (Timer.getTime()-spawnTime);
+		if(player.isAlive) {
+			timeSurvived = (Timer.getTime()-spawnTime);
+		}else {
+			if(window.getInput().isKeyDown(GLFW.GLFW_KEY_ENTER)) {
+				player.setInsanity(0);
+				player.setHealth(player.MAX_HEALTH);
+				player.transform.pos.x = 62;
+				player.transform.pos.y = 102;
+				player.isAlive = true;
+				player.shouldUpdate = true;
+				spawnTime = Timer.getTime();
+			}
+		}
 		
 		if(((int) (100-(player.getInsanity()*100))/10)<=0) {
 			coolDown=1;
@@ -264,10 +307,6 @@ public class World {
 				entities.add(entitiesAdd.get(i));
 			}
 			entitiesAdd.removeAll(entitiesAdd);
-		}
-		
-		if(!player.isAlive) {
-			//TODO respawn
 		}
 		
 		if(fogDen<(player.getInsanity()*100) && !clearing) {
@@ -342,7 +381,9 @@ public class World {
 			e.getSource().delete();
 			e.hasSound = false;
 		}
-		e.removeBoundingBox();
+		if(e != player) {
+			e.removeBoundingBox();
+		}
 		e.isAlive = false;
 	}
 	
