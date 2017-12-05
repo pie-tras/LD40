@@ -43,12 +43,13 @@ public class World {
 	private boolean[][] jumpPermitted;
 	
 	private List<Entity> entities;
+	private List<Entity> shadows;
 	private List<Entity> entitiesAdd;
 	private List<Particle> particles;
 	
 	//private List<Entity> entityKill;
 	
-	private double spawnTime = 0, timeSurvived = 0, tempDisable = -100;
+	private double spawnTime = 0, timeSurvived = 0, tempDisable = 0;
 	private boolean disabled = false;
 	
 	private float fogDen;
@@ -67,6 +68,8 @@ public class World {
 	private Matrix4f world;
 	
 	public static Player player;
+	
+	private boolean shouldReset = false;
 	
 	public World(String world, Camera camera){
 		
@@ -104,6 +107,7 @@ public class World {
 			entities = new ArrayList<Entity>();
 			entitiesAdd = new ArrayList<Entity>();
 			particles = new ArrayList<Particle>();
+			shadows = new ArrayList<Entity>();
 			
 			//entityKill = new ArrayList<Entity>();
 			
@@ -144,13 +148,14 @@ public class World {
 				}
 			}
 			
-			for(int i = 0; i<10; i++) {
+			for(int i = 0; i<30; i++) {
 				transform = new Transform();
 				transform.pos.x = 0;
 				transform.pos.y = 0;
 				ShadowPlayer sp = new ShadowPlayer(transform, this);
 				sp.shouldUpdate = false;
 				entities.add(sp);
+				shadows.add(sp);
 			}	
 		
 		} catch (IOException e) {
@@ -182,7 +187,7 @@ public class World {
 		for(Entity entity : entities) {
 			if(entity.shouldUpdate) {	
 				if(entity.isShadow()) {
-					entity.renderShadow(cam, new Vector4f(170, 0, 00, fogDen/100));
+					entity.renderShadow(cam, new Vector4f(170, 0, 00, fogDen/100+.1f));
 				}else {	
 					entity.render(shader, cam);
 				}
@@ -242,6 +247,7 @@ public class World {
 		if(player.isAlive) {
 			timeSurvived = (Timer.getTime()-spawnTime);
 		}else {
+			shouldReset = true;
 			if(window.getInput().isKeyDown(GLFW.GLFW_KEY_ENTER)) {
 				player.setInsanity(0);
 				player.setHealth(player.MAX_HEALTH);
@@ -249,20 +255,29 @@ public class World {
 				player.transform.pos.y = 102;
 				player.isAlive = true;
 				player.shouldUpdate = true;
+				
 				spawnTime = Timer.getTime();
+				
+				shouldReset = false;
 			}
 		}
 		
 		if(((int) (100-(player.getInsanity()*100))/10)<=0) {
 			coolDown=1;
 		}else{
-			coolDown = ((int) (100-(player.getInsanity()*100))/10);
+			coolDown = ((int) ((100)-(player.getInsanity()*100))/10);
 		}
 		
-		
+		if(shouldReset){
+			
+			for(Entity e  : shadows) {
+				e.shouldUpdate = false;
+			}	
+			
+		}
 		
 		for(Entity entity : entities) {
-	
+			
 			if(Timer.getTime()-tempDisable>=coolDown){
 				disabled=false;
 			}
@@ -270,14 +285,14 @@ public class World {
 			if(!disabled){
 					
 				if(entity.isShadow() && !entity.shouldUpdate) {
-					entity.transform.pos = new Vector3f(getPlayerX(), getPlayerY()+15, 1);
+					entity.transform.pos = new Vector3f(getPlayerX(), getPlayerY()+5, 1);
 					entity.shouldUpdate = true; 
 					tempDisable = Timer.getTime();
 					disabled = true;
 				}
 				
 				if(entity.isShadow() && entity.shouldUpdate && player.isTriggered()) {
-					entity.transform.pos = new Vector3f(getPlayerX(), getPlayerY()+15, 1);
+					entity.transform.pos = new Vector3f(getPlayerX(), getPlayerY()+5, 1);
 					tempDisable = Timer.getTime();
 					disabled = true;
 				}
