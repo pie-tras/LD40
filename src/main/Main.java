@@ -1,18 +1,39 @@
 package main;
 
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_Q;
+import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
+import static org.lwjgl.glfw.GLFW.glfwTerminate;
+import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
+import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glViewport;
 
-import org.lwjgl.openal.*;
-import org.lwjgl.opengl.*;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.openal.AL10;
+import org.lwjgl.openal.AL11;
+import org.lwjgl.opengl.GL;
 
-import assets.*;
-import audio.*;
-import font.*;
-import gui.*;
-import io.*;
-import render.*;
-import world.*;
+import assets.Assets;
+import audio.AudioMaster;
+import audio.Source;
+import font.Font;
+import gui.Gui;
+import io.Timer;
+import io.Window;
+import render.Camera;
+import render.Shader;
+import world.Menu;
+import world.World;
+import world.WorldRenderer;
 
 public class Main {
 	
@@ -91,7 +112,7 @@ public class Main {
 				if(window.getInput().isKeyReleased(GLFW_KEY_ESCAPE)) {
  					glfwSetWindowShouldClose(window.getWindow(), true);
  				}
-				if(window.getInput().isKeyPressed(GLFW_KEY_Q) && !menuOff) {
+				if(window.getInput().isKeyPressed(GLFW.GLFW_KEY_ENTER) && !menuOff) {
 
 					world = new World("level", camera);
 					
@@ -112,7 +133,6 @@ public class Main {
 					frame_time = 0;
 					frames = 0;
 				}
-				System.out.println(window.getInput().getMousePos());
 			}
 			
 			if(can_render) {
@@ -122,6 +142,12 @@ public class Main {
 					world.render(font, gui, map, shader, camera);
 				} else {
 					menu.renderMenu(shader, camera);
+					Vector2f scale = new Vector2f(20,20);
+					Vector3f color = new Vector3f(88, 4, 4);
+					font.render("Forest", new Vector2f(0,70), scale, color);
+					font.render("of", new Vector2f(0,0), scale, color);
+					font.render("Insanity", new Vector2f(0,-70), scale, color);
+					font.render("Press Enter to Start", new Vector2f(0,-150), new Vector2f(scale.x/2, scale.y/2), color);
 				}
 				
 				window.swapBuffers();
