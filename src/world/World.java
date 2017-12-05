@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import javax.imageio.ImageIO;
 
@@ -18,7 +17,11 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.openal.AL10;
+import org.lwjgl.openal.AL11;
 
+import audio.AudioMaster;
+import audio.Source;
 import collision.AABB;
 import collision.TriggerBox;
 import effects.Particle;
@@ -153,6 +156,14 @@ public class World {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		int buffer = AudioMaster.loadSound("audio/Insanity.wav");
+		Source source = new Source();
+		source.setLooping(true);
+		source.play(buffer);
+		source.setStuff();
+		source.setPosition(64,64,0);
+		AudioMaster.sources.add(source);
 		
 	}
 	

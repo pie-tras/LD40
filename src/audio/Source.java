@@ -1,6 +1,7 @@
 package audio;
 
 import org.lwjgl.openal.AL10;
+import org.lwjgl.openal.AL11;
 
 public class Source {
 	
@@ -15,6 +16,11 @@ public class Source {
 		stop();
 		AL10.alSourcei(sourceId, AL10.AL_BUFFER, buffer);
 		continuePlaying();
+	}
+	
+	public void setStuff() {
+		AL10.alDistanceModel(AL11.AL_EXPONENT_DISTANCE_CLAMPED);
+		AL10.alSourcef(sourceId, AL10.AL_REFERENCE_DISTANCE, 1000);
 	}
 	
 	public void pause() {
